@@ -3,7 +3,7 @@
 ### 소스 디렉토리 내에서 아래 코드 실행
 ```sh
 pika-two-BE$ docker build -t pika-be . # 도커 이미지 빌드
-pika-two-BE$ docker run --name pika-be -d -p 5000:5000 -v "$(pwd)":/opt/code pika-be # 도커 이미지 실행
+pika-two-BE$ docker run --name pika-be -d -p 5000:5000 -v "$(pwd)":/opt/code -e FLASK_ENV=dev pika-be # 도커 이미지 실행
 ```
 
 ### 컨테이너 죽이기

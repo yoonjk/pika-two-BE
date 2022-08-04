@@ -1,5 +1,19 @@
-# environment directory
+# based file, directory
 __pycache__
+venv/
+
+*.pyc
+__pycache__/
+
+instance/
+
+.pytest_cache/
+.coverage
+htmlcov/
+
+dist/
+build/
+*.egg-info/
 
 # config data
 data
