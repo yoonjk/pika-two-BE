@@ -1,7 +1,7 @@
 from flask import Flask
 from os import environ
-from config import DevConfig, PrdConfig
-
+from src.config import DevConfig, PrdConfig
+from src.database import db, migrate
 
 app = Flask(__name__)
 
