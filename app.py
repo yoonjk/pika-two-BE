@@ -20,5 +20,5 @@ def hello():
     
 if __name__ == '__main__':
     app.run(debug=app.config["DEBUG"], host="0.0.0.0", port=5000)
-    print(app.config["DB_IP"])
-    
+    db.init_app(app)
+    migrate.init_app(app, db)
