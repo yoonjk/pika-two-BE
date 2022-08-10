@@ -1,5 +1,5 @@
-from flask import Flask
 from src.database import db
+
 
 class User(db.Model):
     __table_name__ = "user"
@@ -18,6 +18,7 @@ class User(db.Model):
     created_dt = db.Column(db.DateTime, server_default=db.func.now())
     modified_dt = db.Column(db.DateTime, server_default=db.func.now(), server_onupdate=db.func.now())
 
+
 class Company(db.Model):
     __table_name__ = "company"
     id = db.Column(db.Integer, primary_key=True, unique=True, autoincrement=True)    
@@ -29,11 +30,13 @@ class Company(db.Model):
     created_dt = db.Column(db.DateTime, server_default=db.func.now())
     modified_dt = db.Column(db.DateTime, server_default=db.func.now(), server_onupdate=db.func.now())
 
+
 class FavoriteCompanies(db.Model):
     __table_name__ = "favorite_companies"
     id = db.Column(db.Integer, primary_key=True, unique=True, autoincrement=True)    
     user_id = db.relationship("User", back_populates="id", lazy="select")
     company_id = db.relationship("Company", back_populates="id", lazy="select")
+
 
 class JobPost(db.Model):
     __table_name__ = "job_post"
@@ -47,6 +50,7 @@ class JobPost(db.Model):
     created_dt = db.Column(db.DateTime, server_default=db.func.now())
     modified_dt = db.Column(db.DateTime, server_default=db.func.now(), server_onupdate=db.func.now())
 
+
 class Apply(db.Model):
     __table_name__ = "apply"
     id = db.Column(db.Integer, primary_key=True, unique=True, autoincrement=True)
@@ -55,7 +59,8 @@ class Apply(db.Model):
     status = db.Column(db.String(100), nullable=False)  # enum, ex) 작성중, 합격, 불합격 등
     created_dt = db.Column(db.DateTime, server_default=db.func.now())
     modified_dt = db.Column(db.DateTime, server_default=db.func.now(), server_onupdate=db.func.now())
-    
+
+
 class Account(db.Model):
     __table_name__ = "account"
     id = db.Column(db.Integer, primary_key=True, unique=True, autoincrement=True)
@@ -65,6 +70,7 @@ class Account(db.Model):
     created_dt = db.Column(db.DateTime, server_default=db.func.now())
     modified_dt = db.Column(db.DateTime, server_default=db.func.now(), server_onupdate=db.func.now())
 
+
 class Wage(db.Model):
     id = db.Column(db.Integer, primary_key=True, unique=True, autoincrement=True)
     amount = db.Column(db.Integer)
@@ -73,6 +79,7 @@ class Wage(db.Model):
     yr = db.Column(db.integer)
     created_dt = db.Column(db.DateTime, server_default=db.func.now())
     modified_dt = db.Column(db.DateTime, server_default=db.func.now(), server_onupdate=db.func.now())
+
 
 class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True, unique=True, autoincrement=True)
