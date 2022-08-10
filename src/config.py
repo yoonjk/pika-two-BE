@@ -9,35 +9,36 @@ class Config(object):
 
     # DB Config
     DB = {
-        "user": "root",
+        "user": "",
         "password": "", # 암호화 필요
         "host": "",
-        "port": "3306",
-        "database": "",
+        "port": "30002",
+        "database": "pikatwo",
     }
 
     @property
     def DB_URI(self):
-        return f"mysql+pymysql://{self.DB['user']}:{self.DB['password']}@{self.DB['host']}:{self.DB['port']}/{self.DB['database']}"
+        return f"mysql+mysqlconnector://{self.DB['user']}:{self.DB['password']}@{self.DB['host']}:{self.DB['port']}/{self.DB['database']}"
     
     SQLALCHEMY_DATABASE_URI = DB_URI
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 class DevConfig(Config):
     DEBUG=True
     DB = {
         "user": "root",
-        "password": "", # 암호화 필요
-        "host": "localhost",
-        "port": "3306",
-        "database": "development",
+        "password": "passw0rd", # 암호화 필요
+        "host": "169.56.100.104",
+        "port": "30002",
+        "database": "pikatwo",
     }
 
 class PrdConfig(Config):
     DEBUG=False
     DB = {
-        "user": "root",
-        "password": "", # 암호화 필요
-        "host": "0.0.0.0",
-        "port": "3306",
-        "database": "production",
+        "user": environ.get("DB_USER") if environ.get("DB_USER") != "" else "",
+        "password": environ.get("DB_PASSWORD") if environ.get("DB_PASSWORD") != "" else "", # 암호화 필요
+        "host": environ.get("DB_HOST") if environ.get("DB_USER") != "" else "",
+        "port": "30002",
+        "database": "pikatwo",
     }

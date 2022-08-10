@@ -1,47 +1,68 @@
 from flask import Flask
-from flask_restx import Api, Resource, Namespace
+from flask_restx import Api, Resource
 from os import environ
 from src.config import DevConfig, PrdConfig
-from src.controller.user import Todo
 from src.database import db, migrate
 
-app = Flask(__name__)
-api = Api(app)
-#
-# api.add_namespace(Signup, '/user')
-# api.add_namespace(DepositSummary, '/user/signup')
-# api.add_namespace(AccountList, '/user/signup')
-# api.add_namespace(AppliedList, '/user/signup')
-# api.add_namespace(FavList, '/user/signup')
+from api.src.nickname_gen import nick_gen
 
+def create_app():
+    app = Flask(__name__)
+    api = Api(app)  # Flask 객체에 Api 객체 등록
 
-if environ.get("FLASK_ENV") == "dev":
-    app.config.from_object(DevConfig())
-else:
-    app.config.from_object(PrdConfig())
+    if environ.get("FLASK_ENV") == "prd":
+        app.config.from_object(PrdConfig())
+    else:
+        app.config.from_object(DevConfig())
 
-
-@api.route('/')
-class Hello(Resource):
-    def get(self):
+    @app.route('/')
+    def hello():
         msg = ""
         for key, val in app.config["DB"].items():
-            msg += f"{key}={val}\n"
-        msg += f"{app.config['DB_URI']}"
+            msg += f"{key}={val}<br>"
+        msg += f"{app.config['DB_URI']}<br>"
+        msg += f"{app.config['SQLALCHEMY_DATABASE_URI']}<br>"
         return msg
+        
+    @api.route('/users/signup')
+    class SignUp(Resource):
+        def get_signup(self):  # GET 요청시 리턴 값에 해당 하는 dict를 JSON 형태로 반환
+            return {"hello": "world!"}
 
+    db.init_app(app)
+    migrate.init_app(app, db)
+    return app
 
-api.add_namespace(Todo, '/api/user')
-
-
-
-# @api.route('/hello/<string:name>')  # url pattern으로 name 설정
-# class Hello(Resource):
-#     def get(self, name):  # 멤버 함수의 파라미터로 name 설정
-#         return {"message" : "Welcome, %s!" % name}
-
-
-if __name__ == '__main__':
+if __name__ == "__main__":
+    app = create_app()
     app.run(debug=app.config["DEBUG"], host="0.0.0.0", port=5000)
-    print(app.config["DB_IP"])
+
+"""
+app = Flask(__name__)
+api = Api(app)  # Flask 객체에 Api 객체 등록
+
+@api.route('/users/signup')
+class SignUp(Resource):
+    def get_signup(self):  # GET 요청시 리턴 값에 해당 하는 dict를 JSON 형태로 반환
+        return {"hello": "world!"}
+
+if environ.get("FLASK_ENV") == "prd":
+    app.config.from_object(PrdConfig())
+else:
+    app.config.from_object(DevConfig())
+
+@app.route('/')
+
+def hello():
+    msg = ""
+    for key, val in app.config["DB"].items():
+        msg += f"{key}={val}<br>"
+    msg += f"{app.config['DB_URI']}<br>"
+    msg += f"{app.config['SQLALCHEMY_DATABASE_URI']}<br>"
+    return msg
     
+if __name__ == '__main__':
+    db.init_app(app)
+    migrate.init_app(app, db)
+    app.run(debug=app.config["DEBUG"], host="0.0.0.0", port=5000)
+"""
