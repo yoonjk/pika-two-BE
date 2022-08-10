@@ -23,6 +23,7 @@ class Config(object):
     SQLALCHEMY_DATABASE_URI = DB_URI
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
+
 class DevConfig(Config):
     DEBUG=True
     DB = {
@@ -32,6 +33,7 @@ class DevConfig(Config):
         "port": "30002",
         "database": "pikatwo",
     }
+
 
 class PrdConfig(Config):
     DEBUG=False

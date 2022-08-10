@@ -1,11 +1,11 @@
-from flask import jsonify, request, app
-from flask_restx import Resource, Api
+from flask import jsonify, request
+from flask_restx import Resource, Namespace
 
 
-api = Api(app)
+Comment = Namespace('Comment')
 
 
-@api.route('/api/<string:company_id>/comment')
+@Comment.route('/<string:company_id>/comment')
 class FavList(Resource):
 
     #찜목록
@@ -20,7 +20,7 @@ class FavList(Resource):
         return jsonify({"code": 200})
 
 
-@api.route('/api/<string:company_id>/comment/<string:comment_id>')
+@Comment.route('/<string:company_id>/comment/<string:comment_id>')
 class FavList(Resource):
 
     #찜삭제
