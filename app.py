@@ -1,14 +1,16 @@
 from flask import Flask
 from flask_restx import Api
 from os import environ
-from src.config import DevConfig, PrdConfig
+from config import DevConfig, PrdConfig
 from src.database import db, migrate
 from src.controller.user import User
 from src.controller.comment import Comment
+from src.controller.mydata import Mydata
 from api.src.nickname_gen import nick_gen
+import logging
 
 app = Flask(__name__)
-
+logging.basicConfig(filename="logs/pikatwo-be.log", level=logging.DEBUG)
 
 def create_app():
 
@@ -30,6 +32,7 @@ def create_app():
 
     api.add_namespace(User, '/api/user')
     api.add_namespace(Comment, '/api')
+    api.add_namespace(Mydata, '/api/mydata')
 
     db.init_app(app)
     migrate.init_app(app, db)
