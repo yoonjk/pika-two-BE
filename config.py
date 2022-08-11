@@ -1,11 +1,10 @@
 from os import environ, path
 
-basedir = path.abspath(path.dirname(__file__))
-
 
 class Config(object):
     # Base Config
     DEBUG=True
+    BASEDIR = path.abspath(path.dirname(__file__))
 
     # DB Config
     DB = {
