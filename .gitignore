@@ -17,10 +17,10 @@ build/
 *.egg-info/
 
 # config data
-data
+data/*
 
 # db file
 migrations
 
 # log
-logs
+logs/*
