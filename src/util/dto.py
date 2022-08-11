@@ -12,12 +12,13 @@ class MydataDto:
     deposit = api.model("Deposit", {
         "date": fields.Date(description="입금일자"),
         "amount": fields.Integer(description="입금액"),
-        "comment": fields.String(description="적요"),
+        "memo": fields.String(description="적요"),
     })
 
     annual_salary = api.model("AnnulSalary", {
-        "year": fields.Integer(description="연도"),
+        "year": fields.Integer(description="연차"),
         "annual_salary": fields.Integer(description="연봉"),
+        "company": fields.String(description="회사"),
     })
 
     response_accounts = api.model('response_accounts',{

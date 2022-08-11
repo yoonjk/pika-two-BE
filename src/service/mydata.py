@@ -6,6 +6,8 @@ from dateutil.relativedelta import relativedelta
 from flask import current_app
 import pandas as pd
 import logging
+from src.database import db
+from src.model.models import User
 
 ACCOUNT_BANK_MAP = {
     "KB나라사랑우대통장": "국민은행",
@@ -95,12 +97,33 @@ def get_accounts(user_id:int) -> list:
     
     return accounts
 
+def register_account(user_id:int, account:str)->tuple:
+    """ 유저의 급여계좌 정보 등록
+    Args:
+        user_id (int): 급여계좌를 등록할 user_id
+        account (str): 급여계좌
+    Returns:
+        int: status_code
+    """
+    status_code = 0
+    msg = account
+    try:
+        user = User.query.get(id=user_id)
+        user.account = account
+        db.session.commit()
+        status_code = 200
+    except Exception as e:
+        status_code = 404
+        msg = str(e)
+        logging.error(f"[ERROR] register_account - {e}")
+        
+    return (status_code, msg)
 
-def get_deposit(user_id:int, account:str):
+def get_deposit(user_id:int, account:str)->list:
     """ 유저의 급여로 추정되는 입금내역 조회
     Args:
         user_id (int): 계좌내역을 조회할 user_id
-        account (str): 급여계좌
+        account (str): 급여계좌     TODO: DB 적용되면 DB 읽어서 사용
     Returns:
         list: 계좌내역
     """
@@ -119,18 +142,18 @@ def get_deposit(user_id:int, account:str):
     deposit_df.rename(columns={
         "날짜": "date",
         "금액": "amount",
-        "내용": "comment",
+        "내용": "memo",
     }, inplace=True)
     deposits = deposit_df.reset_index(drop=True).to_dict(orient="record")
     
     return deposits
 
-def get_annual_salary(user_id:int, account:str, comments:list):
+def get_annual_salary(user_id:int, account:str, memos:list):
     """ 유저의 계좌내역 조회
     Args:
         user_id (int): 계좌내역을 조회할 user_id
-        account (str): 급여계좌
-        commnts (list): 급여에 해당하는 적요 리스트
+        account (str): 급여계좌         TODO: DB 적용되면 DB 읽어서 사용
+        memos (list): 급여에 해당하는 적요 리스트     TODO: DB 적용되면 DB 읽어서 사용
     Returns:
         list: 계좌내역
     """
@@ -141,7 +164,7 @@ def get_annual_salary(user_id:int, account:str, comments:list):
 
     salary_df = statement.loc[
         (statement["결제수단"]==account) \
-        & (statement["내용"].isin(comments))
+        & (statement["내용"].isin(memos))
     ]
     annual_income_dict = salary_df.groupby(salary_df["날짜"].map(lambda x: x.year)).sum().to_dict('index')
     annual_salaries = [{"year": key, "annual_salary": value["금액"]} for key, value in annual_income_dict.items()]
