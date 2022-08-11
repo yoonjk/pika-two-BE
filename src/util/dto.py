@@ -1,21 +1,18 @@
 from flask_restx import Namespace,fields
 
 class MydataDto:
-    """ MyData관련 API response 규격
-    """
-    api = Namespace("Mydata")
+    api = Namespace("Mydata", description="마이데이터 조회 및 연동 API")
 
     account = api.model('Account', {
         "bank": fields.String(description="은행"),
-        "product": fields.String(description="상품명"),
-        "account": fields.String(desciption="계좌번호"),
+        "account": fields.String(desciption="상품명"),
         "balance": fields.Integer(description="잔액"),
     })
 
     deposit = api.model("Deposit", {
         "date": fields.Date(description="입금일자"),
         "amount": fields.Integer(description="입금액"),
-        "적요": fields.String(description="적요"),
+        "comment": fields.String(description="적요"),
     })
 
     annual_salary = api.model("AnnulSalary", {
