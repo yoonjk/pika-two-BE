@@ -4,9 +4,11 @@ from config import DevConfig, PrdConfig
 from src.database import db, migrate
 from src.apis import api
 from api.src.nickname_gen import nick_gen
+from src.model.models import User
 import logging
 
-logging.basicConfig(filename="logs/pikatwo-be.log", level=logging.DEBUG)
+# logging.basicConfig(filename="logs/pikatwo-be.log", level=logging.DEBUG)
+
 
 def create_app():
     app = Flask(__name__)
@@ -28,6 +30,8 @@ def create_app():
     api.init_app(app)
     db.init_app(app)
     migrate.init_app(app, db)
+    with app.app_context():
+        db.create_all()
     return app
 
 
