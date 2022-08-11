@@ -1,5 +1,6 @@
 from flask import jsonify, request
 from flask_restx import Resource, Namespace
+from src.service.user import signup
 # from src.service.user import
 
 
@@ -11,9 +12,8 @@ class Signup(Resource):
 
     #사용자 기본정보 등록
     def post(self):
-        request.get_json()
+        signup(dict(request.get_json()))
         return jsonify({"code": 200})
-
 
 @User.route('/<string:user_id>')
 class MyPage(Resource):
