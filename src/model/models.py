@@ -4,17 +4,17 @@ from src.database import db
 class User(db.Model):
     __table_name__ = "user"
     id = db.Column(db.Integer, primary_key=True, unique=True, autoincrement=True)
-    name = db.Column(db.String(256), nullable=False)
+    name = db.Column(db.String(256), nullable=True)
     nickname = db.Column(db.String(256), unique=True, nullable=False)
     gender = db.Column(db.String(64), nullable=False)
     age = db.Column(db.Integer, )
-    profession = db.Column(db.String(256), nullable=False)    # 직무, enum화 필요
+    profession = db.Column(db.String(256), nullable=True)    # 직무, enum화 필요
     applied_posts = db.relationship("JobPost", back_populates="id", lazy="select")
     cur_company_id = db.relationship("Company", back_populates="id", lazy="select")
-    email = db.Column(db.String(256), unique=True, nullable=False)
+    email = db.Column(db.String(256), unique=True, nullable=True)
     fav_companies = db.relationship("Company", back_populates="id", lazy="select")
-    work_start_dt = db.Column(db.DateTime, nullable=False)
-    wage_account_num = db.Column(db.String(256), nullable=False)
+    work_start_dt = db.Column(db.DateTime, nullable=True)
+    wage_account_num = db.Column(db.String(256), nullable=True)
     created_dt = db.Column(db.DateTime, server_default=db.func.now())
     modified_dt = db.Column(db.DateTime, server_default=db.func.now(), server_onupdate=db.func.now())
 

@@ -1,7 +1,6 @@
 from flask import jsonify, request
 from flask_restx import Resource, Namespace
-# from src.service.user import
-
+from src.service.user import signup, get_my_page, get_fav_list
 
 User = Namespace('User')
 
@@ -11,7 +10,7 @@ class Signup(Resource):
 
     #사용자 기본정보 등록
     def post(self):
-        request.get_json()
+        signup(dict(request.get_json()))
         return jsonify({"code": 200})
 
 
@@ -21,7 +20,8 @@ class MyPage(Resource):
     #마이페이지 정보 조회
     def get(self, user_id):
         print(user_id)
-        return jsonify({"code": 200})
+        response = get_my_page(user_id)
+        return jsonify({"code": 200, "data": response})
 
 
 @User.route('/<string:user_id>/fav-posts')
@@ -30,12 +30,13 @@ class FavList(Resource):
     #찜목록
     def get(self, user_id):
         print(user_id)
-        return jsonify({"code": 200})
+        response = get_fav_list(user_id)
+        return jsonify({"code": 200, "data": response})
 
     #찜등록
     def post(self, user_id):
         print(user_id)
-        request.get_json()
+        request.get_json()['company_id']
         return jsonify({"code": 200})
 
     #찜삭제
