@@ -107,6 +107,11 @@ def get_deposit(user_id:int, account:str):
     , ["날짜", "금액", "내용"]
     ]
     deposit_df["날짜"] = deposit_df["날짜"].apply(lambda x: x.strftime("%Y-%m-%d"))
+    deposit_df.rename(columns={
+        "날짜": "date",
+        "금액": "amount",
+        "내용": "comment",
+    }, inplace=True)
     deposits = deposit_df.reset_index(drop=True).to_dict(orient="record")
     
     return deposits

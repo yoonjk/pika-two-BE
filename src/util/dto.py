@@ -1,4 +1,3 @@
-from dataclasses import field
 from flask_restx import Namespace,fields
 
 class MydataDto:
