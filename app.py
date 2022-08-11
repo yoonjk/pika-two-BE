@@ -3,7 +3,6 @@ from os import environ
 from config import DevConfig, PrdConfig
 from src.database import db, migrate
 from src.apis import api
-from api.src.nickname_gen import nick_gen
 from src.model.models import User
 import logging
 

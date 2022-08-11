@@ -1,6 +1,7 @@
 # based file, directory
 __pycache__
 venv/
+.idea
 
 *.pyc
 __pycache__/
