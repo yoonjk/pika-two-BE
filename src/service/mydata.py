@@ -1,4 +1,3 @@
-import flask
 import pandas as pd
 import datetime
 import xlrd
@@ -7,6 +6,21 @@ from dateutil.relativedelta import relativedelta
 from flask import current_app
 import pandas as pd
 import logging
+from src.database import db
+from src.model.models import User
+
+ACCOUNT_BANK_MAP = {
+    "KB나라사랑우대통장": "국민은행",
+    "MY 입출금통장": "케이뱅크",
+    "NH X 카카오페이통장(비대면실명확인)": "농협은행",
+    "U드림 저축예금 (인터넷전용)": "신한은행",
+    "Young 하나 통장": "하나은행",
+    "세이프박스": "카카오뱅크",
+    "입출금통장": "카카오뱅크",
+    "자유저축예탁금": "지역농협",
+    "첫급여우리 통장": "우리은행",
+    "플러스박스": "케이뱅크",
+}
 
 def read_mydata(user_id:int) -> object:
     """ API나 파일을 통해 마이데이터 수집
@@ -20,14 +34,11 @@ def read_mydata(user_id:int) -> object:
     logging.info(f'BASEDIR={current_app.config.get("BASEDIR")}')
     data_dir = current_app.config.get("BASEDIR") + "/data/"
     if mydata_file in os.listdir(data_dir):
-        mydata = xlrd.open_workbook(data_dir + mydata_file)
-        mydata = mydata.sheet_by_index(0)
-        """
         try:
-            mydata = xlrd.open_workbook(mydata_file)
+            mydata = xlrd.open_workbook(data_dir+mydata_file)
+            mydata = mydata.sheet_by_index(0)
         except Exception as e:
             logging.error(f"[Error] {e}")
-        """
         
     return mydata
 
@@ -45,7 +56,7 @@ def read_statement(user_id:int) -> pd.DataFrame:
         try:
             statement = pd.read_excel(data_dir+statement_file, sheet_name="가계부 내역")
         except Exception as e:
-            pass    
+            logging.error(f"[ERror] {e}")
     return statement
 
 def get_accounts(user_id:int) -> list:
@@ -79,19 +90,40 @@ def get_accounts(user_id:int) -> list:
         if account_row_start and account_row_end and account_col and balance_col:
             break
     accounts = [{
-        "bank": "", 
+        "bank": ACCOUNT_BANK_MAP[mydata.cell(row_idx, account_col).value],
         "account": mydata.cell(row_idx, account_col).value,
         "balance": int(mydata.cell(row_idx, balance_col).value),
     } for row_idx in range(account_row_start, account_row_end)]
     
     return accounts
 
+def register_account(user_id:int, account:str)->tuple:
+    """ 유저의 급여계좌 정보 등록
+    Args:
+        user_id (int): 급여계좌를 등록할 user_id
+        account (str): 급여계좌
+    Returns:
+        int: status_code
+    """
+    status_code = 0
+    msg = account
+    try:
+        user = User.query.get(id=user_id)
+        user.account = account
+        db.session.commit()
+        status_code = 200
+    except Exception as e:
+        status_code = 404
+        msg = str(e)
+        logging.error(f"[ERROR] register_account - {e}")
+        
+    return (status_code, msg)
 
-def get_deposit(user_id:int, account:str):
+def get_deposit(user_id:int, account:str)->list:
     """ 유저의 급여로 추정되는 입금내역 조회
     Args:
         user_id (int): 계좌내역을 조회할 user_id
-        account (str): 급여계좌
+        account (str): 급여계좌     TODO: DB 적용되면 DB 읽어서 사용
     Returns:
         list: 계좌내역
     """
@@ -110,31 +142,30 @@ def get_deposit(user_id:int, account:str):
     deposit_df.rename(columns={
         "날짜": "date",
         "금액": "amount",
-        "내용": "comment",
+        "내용": "memo",
     }, inplace=True)
     deposits = deposit_df.reset_index(drop=True).to_dict(orient="record")
     
     return deposits
 
-def get_annual_salary(user_id:int, account:str, comments:list):
+def get_annual_salary(user_id:int, account:str, memos:list):
     """ 유저의 계좌내역 조회
     Args:
         user_id (int): 계좌내역을 조회할 user_id
-        account (str): 급여계좌
-        commnts (list): 급여에 해당하는 적요 리스트
+        account (str): 급여계좌         TODO: DB 적용되면 DB 읽어서 사용
+        memos (list): 급여에 해당하는 적요 리스트     TODO: DB 적용되면 DB 읽어서 사용
     Returns:
         list: 계좌내역
     """
     statement = read_statement(user_id=user_id)
-
     if statement is None:
         # TODO: 급여 및 입금 내역 랜덤 생성 필요
         return []
 
     salary_df = statement.loc[
         (statement["결제수단"]==account) \
-        & (statement["내용"].isin(comments))
+        & (statement["내용"].isin(memos))
     ]
     annual_income_dict = salary_df.groupby(salary_df["날짜"].map(lambda x: x.year)).sum().to_dict('index')
-    annual_salarys = [{"year": key, "annual_salary": value["금액"]} for key, value in annual_income_dict.items()]
-    return annual_salarys
+    annual_salaries = [{"year": key, "annual_salary": value["금액"]} for key, value in annual_income_dict.items()]
+    return annual_salaries
