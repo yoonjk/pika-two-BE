@@ -76,7 +76,7 @@ class Wage(db.Model):
     amount = db.Column(db.Integer)
     user_id = db.relationship("User", back_populates="id", lazy="select")
     company_id = db.relationship("Company", back_populates="id", lazy="select")
-    yr = db.Column(db.integer)
+    yr = db.Column(db.Integer)
     created_dt = db.Column(db.DateTime, server_default=db.func.now())
     modified_dt = db.Column(db.DateTime, server_default=db.func.now(), server_onupdate=db.func.now())
 

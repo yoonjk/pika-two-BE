@@ -6,6 +6,7 @@ from src.database import db, migrate
 from src.controller.user import User
 from src.controller.comment import Comment
 from api.src.nickname_gen import nick_gen
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 
@@ -32,7 +33,10 @@ def create_app():
     api.add_namespace(Comment, '/api')
 
     db.init_app(app)
+
     migrate.init_app(app, db)
+    # with app.app_context():
+    #     db.create_all()
     return app
 
 
