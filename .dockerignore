@@ -17,6 +17,7 @@ build/
 
 # config data
 data/*
+.git
 
 # db file
 migrations

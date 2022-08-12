@@ -1,5 +1,5 @@
 from flask_restx import Resource, reqparse
-from src.controller import mydata
+from src.service import mydata
 from src.util.dto import MydataDto
 
 api = MydataDto.api

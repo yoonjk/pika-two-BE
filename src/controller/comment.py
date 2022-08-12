@@ -7,7 +7,7 @@ Comment = Namespace('Comment')
 
 
 @Comment.route('/<string:company_id>/comment')
-class Comment(Resource):
+class Review(Resource):
 
     #리뷰조회
     def get(self, company_id):
