@@ -64,18 +64,18 @@ podTemplate(containers: [
 
 			// Build Source from Repository in gitlab
 			stage(stageName) {
-				echo "**** START : " + stageName
-				def _dir = pwd();
-				echo "path : ${_dir}"
-				echo "baseDir : ${baseDir}"
-				echo "baseDeployDir : ${baseDeployDir}"
-				sh "ls -al"
-				container('maven') {
-						sh "mvn -B -f ${baseDir} clean package -Dmaven.testSkips=true "
-						echo "*** RESULT ***"
-						sh "pwd"
-						sh "ls -al ${baseDir}/target"
-				}
+				// echo "**** START : " + stageName
+				// def _dir = pwd();
+				// echo "path : ${_dir}"
+				// echo "baseDir : ${baseDir}"
+				// echo "baseDeployDir : ${baseDeployDir}"
+				// sh "ls -al"
+				// container('maven') {
+				// 		sh "mvn -B -f ${baseDir} clean package -Dmaven.testSkips=true "
+				// 		echo "*** RESULT ***"
+				// 		sh "pwd"
+				// 		sh "ls -al ${baseDir}/target"
+				// }
 			}
 
 			// Code Inspection
