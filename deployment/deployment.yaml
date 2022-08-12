@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pikatwo-be-deploy
+  labels:
+    app: pikatwo-be
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pikatwo-be
+  template:
+    metadata:
+      labels:
+        app: pikatwo-be
+    spec:
+      containers:
+        - name: pikatwo-be
+          image: daisyjeon/pikatwo-be:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 5000
+          env:
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: pikatwo-be-secret
+                  key: DB_USER
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: pikatwo-be-secret
+                  key: DB_PASSWORD
+            - name: DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: pikatwo-be-secret
+                  key: DB_HOST
+            - name: FLASK_ENV
+              value: prd
