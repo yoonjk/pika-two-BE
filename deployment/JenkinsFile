@@ -102,7 +102,7 @@ podTemplate(containers: [
 					               )]) {
 					  //sh 'echo user "$USER" pasword "$PASSWORD"'
 					  sh "podman login --tls-verify=false --username ${USER} --password ${PASSWORD} ${dockerRegistry}"
-						sh "podman build -f ./deployment/Dockerfile -t ${image}:${tag} ."
+						sh "podman build -f ./Dockerfile -t ${image}:${tag} ."
 						sh "podman push ${image}:${tag}"
 						sh "podman tag ${image}:${tag} ${image}:dev"
 						sh "podman push ${image}:dev"
