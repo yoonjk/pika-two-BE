@@ -8,7 +8,7 @@ spec:
   tls:
   - secretName: tls-secret
   rules:
-  - host: "user20.169.56.100.104.nip.io"
+  - host: "pikatwo.kbfg.kubepia.com"
     http:
       paths:
       - path: /pikatwo
