@@ -66,6 +66,7 @@ class Deposit(db.Model):
     deposit_amount = db.Column(db.Integer)
     deposit_dt = db.Column(db.DateTime)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    memo = db.Column(db.String(1024), nullable=False)
     created_dt = db.Column(db.DateTime, server_default=db.func.now())
     modified_dt = db.Column(db.DateTime, server_default=db.func.now(), server_onupdate=db.func.now())
 
@@ -87,3 +88,9 @@ class Comment(db.Model):
     company_id = db.Column(db.Integer, db.ForeignKey("company.id"), nullable=False)
     created_dt = db.Column(db.DateTime, server_default=db.func.now())
     modified_dt = db.Column(db.DateTime, server_default=db.func.now(), server_onupdate=db.func.now())
+
+
+class Memo(db.Model):
+    id = db.Column(db.Integer, primary_key=True, unique=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    memo = db.Column(db.String(100), nullable=False)
