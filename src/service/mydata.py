@@ -1,3 +1,4 @@
+import re
 import pandas as pd
 import datetime
 import xlrd
@@ -7,7 +8,8 @@ from flask import current_app
 import pandas as pd
 import logging
 from src.database import db
-from src.model.models import User
+from src.model.models import User, Memo, Company, Deposit, Wage
+from sqlalchemy import func
 
 ACCOUNT_BANK_MAP = {
     "KB나라사랑우대통장": "국민은행",
@@ -97,7 +99,7 @@ def get_accounts(user_id:int) -> list:
     
     return accounts
 
-def register_account(user_id:int, account:str)->tuple:
+def register_account(user_id:int, account:str) -> tuple:
     """ 유저의 급여계좌 정보 등록
     Args:
         user_id (int): 급여계좌를 등록할 user_id
@@ -105,13 +107,12 @@ def register_account(user_id:int, account:str)->tuple:
     Returns:
         int: status_code
     """
-    status_code = 0
+    status_code = 200
     msg = account
     try:
-        user = User.query.get(id=user_id)
+        user = User.query.filter(User.id==user_id).first()
         user.account = account
         db.session.commit()
-        status_code = 200
     except Exception as e:
         status_code = 404
         msg = str(e)
@@ -119,22 +120,22 @@ def register_account(user_id:int, account:str)->tuple:
         
     return (status_code, msg)
 
-def get_deposit(user_id:int, account:str)->list:
+def get_deposit(user_id:int)->list:
     """ 유저의 급여로 추정되는 입금내역 조회
     Args:
-        user_id (int): 계좌내역을 조회할 user_id
-        account (str): 급여계좌     TODO: DB 적용되면 DB 읽어서 사용
+        user_id (int): 입금내역을 조회할 user_id
     Returns:
-        list: 계좌내역
+        list: 입금 내역
     """
     statement = read_statement(user_id=user_id)
+    account = User.query.filter(User.id==user_id).first().account
     salary_criteria = 500000
     if statement is None:
         # TODO: 급여 및 입금 내역 랜덤 생성 필요
         return []
     deposit_df = statement.loc[
         (statement["결제수단"]==account) \
-        & (statement["금액"]>salary_criteria) \
+        & (statement["금액"] > salary_criteria) \
         & (statement["날짜"] > datetime.datetime.now() - relativedelta(months=6))
     , ["날짜", "금액", "내용"]
     ]
@@ -148,16 +149,51 @@ def get_deposit(user_id:int, account:str)->list:
     
     return deposits
 
-def get_annual_salary(user_id:int, account:str, memos:list):
-    """ 유저의 계좌내역 조회
+def add_memos(user_id:int, memos:list) -> tuple:
+    """ 유저의 급여 적요 등록
     Args:
         user_id (int): 계좌내역을 조회할 user_id
-        account (str): 급여계좌         TODO: DB 적용되면 DB 읽어서 사용
-        memos (list): 급여에 해당하는 적요 리스트     TODO: DB 적용되면 DB 읽어서 사용
+        memos (list): 급여에 해당하는 적요 리스트
     Returns:
-        list: 계좌내역
+        tuple: (상태코드, 메세지)
+    """
+    status_code = 200
+    msg = memos
+    registered_memos = [m.memo for m in Memo.query.filter(Memo.user_id==user_id).all()]
+    try:
+        # TODO: memo 테이블에서 없는 memo만 등록
+        for memo in memos:
+            if memo not in registered_memos:
+                new_memo = Memo(
+                    user_id=user_id,
+                    memo=memo,
+                )
+                db.session.add(new_memo)
+        db.session.commit()
+
+        # 메모 기반으로 급여내역 등록
+        status_code = add_salary_history(user_id)
+
+        msg = f"{user_id}의 급여계좌 등록이 완료되었습니다"
+
+    except Exception as e:
+        status_code = 404
+        msg = f"{user_id}의 급여계좌 등록 중 에러가 발생하였습니다 - {e}"
+        logging.error(msg)
+
+    return (status_code, msg)
+
+def get_salary_history_from_mydata(user_id:int) -> list:
+    """ 마이데이터에서 유저의 급여내역 조회
+    Args:
+        user_id (int): 급여내역을 조회할 user_id
+    Returns:
+        list: 급여내역
     """
     statement = read_statement(user_id=user_id)
+    user = User.query.filter(User.id==user_id).first()
+    account = user.account
+    memos = [memo.memo for memo in Memo.query.filter(Memo.user_id==user_id).all()]
     if statement is None:
         # TODO: 급여 및 입금 내역 랜덤 생성 필요
         return []
@@ -165,7 +201,120 @@ def get_annual_salary(user_id:int, account:str, memos:list):
     salary_df = statement.loc[
         (statement["결제수단"]==account) \
         & (statement["내용"].isin(memos))
-    ]
-    annual_income_dict = salary_df.groupby(salary_df["날짜"].map(lambda x: x.year)).sum().to_dict('index')
-    annual_salaries = [{"year": key, "annual_salary": value["금액"]} for key, value in annual_income_dict.items()]
-    return annual_salaries
+    , ["날짜", "내용", "금액"]]
+    salary_df["날짜"] = salary_df["날짜"].apply(lambda x: x.strftime("%Y-%m-%d"))
+    salary_df.rename(columns={
+        "날짜": "deposit_dt",
+        "금액": "deposit_amount",
+        "내용": "memo",
+    }, inplace=True)
+    salary_history = salary_df.to_dict(orient="records")
+    return salary_history
+
+
+def add_salary_history(user_id:int) -> tuple:
+    """ 유저의 급여 입금내역 추가
+    Args:
+        user_id (int): 급여내역을 추가할 user_id
+    """
+    status_code = 200
+    try:
+        salary_history = get_salary_history_from_mydata(user_id)
+        for salary in salary_history:
+            if Deposit.query.filter((Deposit.user_id==user_id) & (Deposit.deposit_dt==salary["deposit_dt"]) & (Deposit.deposit_amount==salary["deposit_amount"]) & (Deposit.memo==salary["memo"])).count() == 0:
+                new_salary = Deposit(
+                    deposit_amount=salary["deposit_amount"],
+                    deposit_dt=salary["deposit_dt"],
+                    user_id=user_id,
+                    memo=salary["memo"],
+                )
+                db.session.add(new_salary)
+        db.session.commit()
+
+        # 연봉정보 등록
+        status_code = add_annual_salary(user_id)
+
+        logging.info(f"{user_id}의 급여내역이 추가되었습니다.")
+        return status_code
+    except Exception as e:
+        logging.error(f"{user_id}의 급여내역 추가 중 오류가 발생하였습니다 - {e}")
+        raise Exception(e)
+
+def add_annual_salary(user_id:int) -> tuple:
+    """ 유저의 연봉 데이터 추가
+    Args:
+        user_id (int): 급여내역을 추가할 user_id
+    """
+    user = User.query.filter(User.id==user_id).first()
+    company_id = user.cur_company_id
+    annual_salaries = db.session.query(func.sum(Deposit.deposit_amount).label("annual_salary"), func.year(Deposit.deposit_dt).label("year")).filter(Deposit.user_id==1).group_by(func.year(Deposit.deposit_dt)).all()
+    status_code = 200
+
+    try:
+        for salary in annual_salaries:
+            career_yr = salary.year - user.work_start_dt.year
+            registered_wage = Wage.query.filter((Wage.user_id==user_id) & (Wage.yr==career_yr) & (Wage.company_id==company_id)).first()
+            if registered_wage is None:
+                new_wage = Wage(
+                    amount=salary.annual_salary,
+                    user_id=user_id,
+                    company_id=company_id,
+                    yr=career_yr,
+                )
+                db.session.add(new_wage)
+            else:
+                if registered_wage.amount != salary.annual_salary:
+                    registered_wage.amount = salary.annual_salary
+        db.session.commit()
+        logging.info(f"{user_id}의 연봉정보가 등록되었습니다.")
+        return status_code
+    except Exception as e:
+        logging.error(f"{user_id}의 연봉정보 등록 중 오류가 발생하였습니다 - {e}")
+        raise Exception(e)
+
+
+def update_annual_salary(user_id:int, year:int) -> tuple:
+    """ 유저의 연봉 업데이트
+    Args:
+        user_id (int): 급여내역을 추가할 user_id
+        year (int): 연봉을 업데이트 하려는 연도
+    Returns:
+        int: 상태코드
+    """
+    status_code=200
+    annual_salary=None
+    try:
+        user = User.query.filter(User.id==user_id).first()
+        annual_salary = db.session.query(func.sum(Deposit.deposit_amount).label("annual_salary"), func.year(Deposit.deposit_dt).label("year")).filter((Deposit.user_id==user_id)&(func.year(Deposit.deposit_dt)==year)).group_by(func.year(Deposit.deposit_dt)).first().annual_salary  # {user_id}의 {year}연도의 급여 총합
+        career_yr = year - user.work_start_dt.year
+        wage = Wage.query.filter((Wage.user_id==user_id)&(Wage.yr==career_yr))
+        wage.amount = annual_salary
+        db.session.commit()
+        logging.info(f"{user_id}의 {year}년 연봉 정보를 업데이트하였습니다")
+    except Exception as e:
+        status_code=404
+        logging.error(f"{user_id}의 {year}년 연봉 정보를 업데이트하던 중 오류가 발생하였습니다 - {e}")
+    
+    return status_code, annual_salary
+
+def get_annual_salary(user_id:int, year:int) -> list:
+    """ 유저의 연봉내역 조회
+    Args:
+        user_id (int): 연봉내역을 조회할 user_id
+        year (int): 연봉을 조회하려는 연도
+    Returns:
+        list: 연봉내역
+    """
+    user = User.query.filter(User.id==user_id).first()
+    career_yr = year-user.work_start_dt.year
+    company_name = Company.query.filter(Company.id==user.cur_company_id).first().name
+    annual_salary = {
+        "year": career_yr,
+        "annual_salary": Wage.query.filter(
+            (Wage.user_id==user_id) &
+            (Wage.yr==career_yr)
+        ).first().amount,
+        "company": company_name,
+    }
+        
+    return annual_salary
