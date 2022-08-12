@@ -41,6 +41,7 @@ parser1 = Company.parser()
 parser1.add_argument('year', location='args', help='검색하고자 하는 키워드')
 parser1.add_argument('profession',location='args',help="회사 업종")
 
+
 @Company.route('/<int:company_id>/wage')
 class CompanyWage(Resource):
     @Company.expect(parser1)

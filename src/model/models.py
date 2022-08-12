@@ -35,6 +35,8 @@ class FavoriteCompanies(db.Model):
     id = db.Column(db.Integer, primary_key=True, unique=True, autoincrement=True)    
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     company_id = db.Column(db.Integer, db.ForeignKey("company.id"), nullable=False)
+    # created_dt = db.Column(db.DateTime, server_default=db.func.now())
+    # modified_dt = db.Column(db.DateTime, server_default=db.func.now(), server_onupdate=db.func.now())
 
 
 class JobPost(db.Model):
