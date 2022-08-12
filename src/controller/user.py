@@ -1,89 +1,78 @@
 from flask import jsonify, request
 from flask_restx import Resource, Namespace
-from src.service.user import signup
-# from src.service.user import
-
+from src.service.user import signup, get_my_page, get_fav_list, \
+    delete_fav_list, get_applied_list, post_applied_list, post_fav_list, update_applied_list
 
 User = Namespace('User')
 
 
 @User.route('/signup')
 class Signup(Resource):
-
-    #사용자 기본정보 등록
+    # 사용자 기본정보 등록
     def post(self):
         signup(dict(request.get_json()))
         return jsonify({"code": 200})
 
+
 @User.route('/<string:user_id>')
 class MyPage(Resource):
 
-    #마이페이지 정보 조회
+    # 마이페이지 정보 조회
     def get(self, user_id):
         print(user_id)
-        return jsonify({"code": 200})
+        response = get_my_page(user_id)
+        return jsonify({"code": 200, "data": response})
 
 
 @User.route('/<string:user_id>/fav-posts')
 class FavList(Resource):
 
-    #찜목록
+    # 찜목록
     def get(self, user_id):
         print(user_id)
-        return jsonify({"code": 200})
+        response = get_fav_list(user_id)
+        return jsonify({"code": 200, "data": response})
 
-    #찜등록
+    # 찜등록
     def post(self, user_id):
         print(user_id)
-        request.get_json()
+        post_fav_list(user_id, request.get_json()['company_id'])
         return jsonify({"code": 200})
 
-    #찜삭제
+    # 찜삭제
     def delete(self, user_id):
         print(user_id)
-        request.get_json()
+        delete_fav_list(request.get_json()['fav_company_id'])
         return jsonify({"code": 200})
 
 
 @User.route('/<string:user_id>/applied-posts')
 class AppliedList(Resource):
 
-    #지원회사 목록
+    # 지원회사 목록
     def get(self, user_id):
         print(user_id)
-        return jsonify({"code": 200})
+        res = get_applied_list(user_id)
+        return jsonify({"code": 200, "data": res})
 
-
-@User.route('/<string:user_id>/account')
-class AccountList(Resource):
-
-    #계좌목록
-    def get(self, user_id):
-        print(user_id)
-        return jsonify({"code": 200})
-
-    #급여계좌 등록
+    #지원하기
     def post(self, user_id):
         print(user_id)
-        request.get_json()
+        post_applied_list(user_id, request.get_json()['post_id'])
         return jsonify({"code": 200})
 
-
-@User.route('/<string:user_id>/<string:account_id>/summary')
-class DepositSummary(Resource):
-
-    #입금내역
-    def get(self, user_id, account_id):
+    #상태 변경
+    def put(self, user_id):
         print(user_id)
-        print(account_id)
+        req = request.get_json()
+        update_applied_list(user_id, req['apply_id'], req['status'])
         return jsonify({"code": 200})
 
-
-@User.route('/<string:user_id>/wage')
-class Wage(Resource):
-
-    #개인연봉 조회
-    def get(self, user_id):
+    #지원현황 삭제
+    def delete(self, user_id):
         print(user_id)
+        post_applied_list(user_id, request.get_json()['apply_id'])
         return jsonify({"code": 200})
+
+
 
