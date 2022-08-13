@@ -20,13 +20,12 @@ class CompanySearch(Resource):
 
         response = get_search_company(com_keyword, com_category, com_type, com_is_certified, p_size, p_num)
 
-        return response
+        return jsonify({"code": 200,"data" : response})
 
 @Company.route('/<int:company_id>')
 class CompanyDetail(Resource):
     def get(self, company_id):
         '''기업 상세 정보(Get)'''
-        print(company_id)
         response = get_company_info(company_id)
         return jsonify({"code": 200,"data" : response})
 
