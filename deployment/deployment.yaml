@@ -36,5 +36,10 @@ spec:
                 secretKeyRef:
                   name: pikatwo-be-secret
                   key: DB_HOST
+            - name: DB_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: pikatwo-be-secret
+                  key: DB_PORT
             - name: FLASK_ENV
               value: prd
