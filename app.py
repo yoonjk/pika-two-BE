@@ -6,7 +6,6 @@ from src.model.models import User
 import logging
 import os
 
-logging.basicConfig(filename="logs/pikatwo-be.log", level=logging.DEBUG)
 
 def create_app():
     app = Flask(__name__)
@@ -19,6 +18,8 @@ def create_app():
     log_dir = app.config.get("BASEDIR") + "/logs"
     if not os.path.exists(log_dir):
         os.makedirs(log_dir)
+
+    logging.basicConfig(filename="logs/pikatwo-be.log", level=logging.DEBUG)
 
     @app.route('/')
     def hello():
