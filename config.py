@@ -11,7 +11,7 @@ class Config(object):
         "user": "",
         "password": "", # 암호화 필요
         "host": "",
-        "port": "30002",
+        "port": "",
         "database": "pikatwo",
     }
 
@@ -42,6 +42,6 @@ class PrdConfig(Config):
         "user": environ.get("DB_USER") if environ.get("DB_USER") != "" else "",
         "password": environ.get("DB_PASSWORD") if environ.get("DB_PASSWORD") != "" else "", # 암호화 필요
         "host": environ.get("DB_HOST") if environ.get("DB_HOST") != "" else "",
-        "port": "30002",
+        "port": environ.get("DB_PORT") if environ.get("DB_PORT") != "" else "",
         "database": "pikatwo",
     }
