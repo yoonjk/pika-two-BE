@@ -56,9 +56,13 @@ def get_company_info(company_id:int):
     wage_list = []
     for i in range(1, 6):
         # 연차별로 평균, 최소, 최대 연봉
-        avg_wage = int(Wage.query.with_entities(func.avg(Wage.amount).label("avg")).group_by(Wage.yr).having(Wage.yr == i).first()[0])
-        min_wage = Wage.query.with_entities(func.min(Wage.amount).label("avg")).group_by(Wage.yr).having(Wage.yr == i).first()[0]
-        max_wage = Wage.query.with_entities(func.max(Wage.amount).label("avg")).group_by(Wage.yr).having(Wage.yr == i).first()[0]
+        avg_wage = Wage.query.with_entities(func.avg(Wage.amount).label("avg")).group_by(Wage.yr).having(Wage.yr == i).first()
+        min_wage = Wage.query.with_entities(func.min(Wage.amount).label("avg")).group_by(Wage.yr).having(Wage.yr == i).first()
+        max_wage = Wage.query.with_entities(func.max(Wage.amount).label("avg")).group_by(Wage.yr).having(Wage.yr == i).first()
+
+        avg_wage = 0 if avg_wage == None else int(avg_wage[0])
+        min_wage = 0 if min_wage == None else int(min_wage[0])
+        max_wage = 0 if max_wage == None else int(max_wage[0])
 
         res = {
             "profession" : ur.profession,
