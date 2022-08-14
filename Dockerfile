@@ -1,7 +1,5 @@
 FROM python:3.8-slim
 
-COPY ./data/ /data/
-
 COPY . /opt/code/
 WORKDIR /opt/code/
 RUN pip install -r requirements.txt
