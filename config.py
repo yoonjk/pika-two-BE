@@ -25,6 +25,7 @@ class Config(object):
 
 class DevConfig(Config):
     DEBUG=True
+    DATADIR=path.abspath(path.dirname(__file__))+"/data/"
     DB = {
         "user": "root",
         "password": "passw0rd", # 암호화 필요
@@ -36,10 +37,11 @@ class DevConfig(Config):
 
 class PrdConfig(Config):
     DEBUG=False
+    DATADIR="/data/"
     DB = {
         "user": environ.get("DB_USER") if environ.get("DB_USER") != "" else "",
         "password": environ.get("DB_PASSWORD") if environ.get("DB_PASSWORD") != "" else "", # 암호화 필요
-        "host": environ.get("DB_HOST") if environ.get("DB_USER") != "" else "",
+        "host": environ.get("DB_HOST") if environ.get("DB_HOST") != "" else "",
         "port": "30002",
         "database": "pikatwo",
     }

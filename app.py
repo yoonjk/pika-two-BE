@@ -1,20 +1,24 @@
 from flask import Flask
-from os import environ
 from config import DevConfig, PrdConfig
 from src.database import db, migrate
 from src.apis import api
 from src.model.models import User
 import logging
+import os
 
 logging.basicConfig(filename="logs/pikatwo-be.log", level=logging.DEBUG)
 
 def create_app():
     app = Flask(__name__)
 
-    if environ.get("FLASK_ENV") == "prd":
+    if os.environ.get("FLASK_ENV") == "prd":
         app.config.from_object(PrdConfig())
     else:
         app.config.from_object(DevConfig())
+
+    log_dir = app.config.get("BASEDIR") + "/logs"
+    if not os.path.exists(log_dir):
+        os.makedirs(log_dir)
 
     @app.route('/')
     def hello():

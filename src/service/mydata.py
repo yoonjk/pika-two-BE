@@ -1,4 +1,3 @@
-import re
 import pandas as pd
 import datetime
 import xlrd
@@ -33,8 +32,7 @@ def read_mydata(user_id:int) -> object:
     """
     mydata_file = f"{user_id}.xlsx"
     mydata = None
-    logging.info(f'BASEDIR={current_app.config.get("BASEDIR")}')
-    data_dir = current_app.config.get("BASEDIR") + "/data/"
+    data_dir = current_app.config.get("DATADIR") + "/data/"
     if mydata_file in os.listdir(data_dir):
         try:
             mydata = xlrd.open_workbook(data_dir+mydata_file)
@@ -53,7 +51,7 @@ def read_statement(user_id:int) -> pd.DataFrame:
     """
     statement_file = f"{user_id}.xlsx"
     statement = None
-    data_dir = current_app.config.get("BASEDIR") + "/data/"
+    data_dir = current_app.config.get("DATADIR")
     if statement_file in os.listdir(data_dir):
         try:
             statement = pd.read_excel(data_dir+statement_file, sheet_name="가계부 내역")
@@ -252,7 +250,7 @@ def add_annual_salary(user_id:int) -> tuple:
 
     try:
         for salary in annual_salaries:
-            career_yr = salary.year - user.work_start_dt.year
+            career_yr = salary.year - user.work_start_dt.year + 1 # 입사연도=1년차
             registered_wage = Wage.query.filter((Wage.user_id==user_id) & (Wage.yr==career_yr) & (Wage.company_id==company_id)).first()
             if registered_wage is None:
                 new_wage = Wage(
@@ -286,7 +284,7 @@ def update_annual_salary(user_id:int, year:int) -> tuple:
     try:
         user = User.query.filter(User.id==user_id).first()
         annual_salary = db.session.query(func.sum(Deposit.deposit_amount).label("annual_salary"), func.year(Deposit.deposit_dt).label("year")).filter((Deposit.user_id==user_id)&(func.year(Deposit.deposit_dt)==year)).group_by(func.year(Deposit.deposit_dt)).first().annual_salary  # {user_id}의 {year}연도의 급여 총합
-        career_yr = year - user.work_start_dt.year
+        career_yr = year - user.work_start_dt.year +1
         wage = Wage.query.filter((Wage.user_id==user_id)&(Wage.yr==career_yr))
         wage.amount = annual_salary
         db.session.commit()
@@ -306,7 +304,7 @@ def get_annual_salary(user_id:int, year:int) -> list:
         list: 연봉내역
     """
     user = User.query.filter(User.id==user_id).first()
-    career_yr = year-user.work_start_dt.year
+    career_yr = year-user.work_start_dt.year + 1
     company_name = Company.query.filter(Company.id==user.cur_company_id).first().name
     annual_salary = {
         "year": career_yr,
