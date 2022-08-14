@@ -51,7 +51,7 @@ def read_statement(user_id:int) -> pd.DataFrame:
     """
     statement_file = f"{user_id}.xlsx"
     statement = None
-    data_dir = current_app.config.get("BASEDIR") + "/data/"
+    data_dir = current_app.config.get("DATADIR")
     if statement_file in os.listdir(data_dir):
         try:
             statement = pd.read_excel(data_dir+statement_file, sheet_name="가계부 내역")
