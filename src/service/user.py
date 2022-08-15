@@ -1,17 +1,19 @@
 from src.database import db
 from src.model.models import User, FavoriteCompanies, Wage, Apply, JobPost, Company
 from src.service.nickname_gen import nick_gen
+from src.service.company import get_or_create_company
 import logging
 
 
 def signup(input):
     logging.info(f"signup - {input}")
     randNickname = nick_gen(1)
+    cur_company_id = get_or_create_company(input['company_name'])
     newUser = User(
         nickname=randNickname,
         gender=input['gender'],
         profession=input['profession'],
-        cur_company_id=input['cur_company_id'],
+        cur_company_id=cur_company_id,
         email=input['email'],
         work_start_dt=input['work_start_dt'],
         account=input['account'],
