@@ -1,10 +1,11 @@
 from src.database import db
 from src.model.models import User, FavoriteCompanies, Wage, Apply, JobPost, Company
 from src.service.nickname_gen import nick_gen
+import logging
 
 
 def signup(input):
-    print(input)
+    logging.info(f"signup - {input}")
     randNickname = nick_gen(1)
     newUser = User(
         nickname=randNickname,
@@ -18,6 +19,7 @@ def signup(input):
     )
     db.session.add(newUser)
     db.session.commit()
+    return newUser.id
 
 
 # 마이페이지 정보 조회
