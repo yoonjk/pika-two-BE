@@ -110,7 +110,6 @@ class Memo(Resource):
 class AnnualSalary(Resource):
     @api.response(200, 'Success', _annual_salary_model)
     @api.response(400, 'Bad Request')
-    @api.marshal_with(_response_annual_salaries)
     def get(self, user_id:int, year:int):
         """
         유저 세후 연봉조회
@@ -124,7 +123,6 @@ class AnnualSalary(Resource):
 
     @api.response(200, 'Success', _annual_salary_model)
     @api.response(400, 'Bad Request')
-    @api.marshal_with(_response_annual_salaries)
     def put(self, user_id:int, year:int):
         """
         유저 세후 연봉조회
