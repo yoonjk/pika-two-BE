@@ -20,7 +20,7 @@ class Signup(Resource):
         })
 
 
-@User.route('/<string:user_id>')
+@User.route('/mypage/<int:user_id>')
 class MyPage(Resource):
 
     # 마이페이지 정보 조회
@@ -30,7 +30,7 @@ class MyPage(Resource):
         return jsonify({"code": 200, "data": response})
 
 
-@User.route('/<string:user_id>/fav-posts')
+@User.route('/<int:user_id>/fav-posts')
 class FavList(Resource):
 
     # 찜목록
@@ -52,7 +52,7 @@ class FavList(Resource):
         return jsonify({"code": 200})
 
 
-@User.route('/<string:user_id>/applied-posts')
+@User.route('/<int:user_id>/applied-posts')
 class AppliedList(Resource):
 
     # 지원회사 목록
