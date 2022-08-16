@@ -14,7 +14,7 @@ class CompanySearch(Resource):
         com_keyword = request.args.get('keyword', default='', type=str)
         com_category = request.args.get('category', default='', type=str)
         com_type = request.args.get('type', default='', type=str)
-        com_is_certified = request.args.get('is_certified', default=0, type=int)
+        com_is_certified = request.args.get('is_certified', default=1, type=int)
         p_size = request.args.get('page_size', default='20', type=int)
         p_num = request.args.get('page_num', default='1', type=int)
 
