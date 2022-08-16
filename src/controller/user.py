@@ -28,7 +28,7 @@ class MyPage(Resource):
         return jsonify({"code": 200, "data": response})
 
 
-@User.route('/<int:user_id>/fav-posts')
+@User.route('/<int:user_id>/favor')
 class FavList(Resource):
 
     # 찜목록
