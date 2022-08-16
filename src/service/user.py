@@ -3,6 +3,7 @@ from src.model.models import User, FavoriteCompanies, Wage, Apply, JobPost, Comp
 from src.service.nickname_gen import nick_gen
 from src.service.company import get_or_create_company
 import logging
+from datetime import date
 
 
 def signup(input):
@@ -16,9 +17,11 @@ def signup(input):
         profession="IT",
         cur_company_id=cur_company_id,
         email=input['email'],
-        work_start_dt=input['work_start_dt'],
+        work_start_dt= f'{input["work_start_dt"]}-01-01',
         account="",
-        birth_yr=input['birth_yr'],
+        # work_start_dt = int(input['work_start_dt']),
+        birth_yr= int(input['birth_yr'])
+        # birth_yr = int(input['birth_yr'])
     )
     db.session.add(newUser)
     db.session.commit()
