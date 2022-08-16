@@ -12,10 +12,10 @@ def create_app():
 
     if os.environ.get("FLASK_ENV") == "prd":
         app.config.from_object(PrdConfig())
-        my_cors = CORS(app,resources={r"*" : {"origins" : ["http://pikatwo.kbfg.kubepia.com"]}},supports_credentials=True)
+        my_cors = CORS(app,resources={r"*" : {"origins" : ["*"]}})
     else:
         app.config.from_object(DevConfig())
-        my_cors = CORS(app,resources={r"*" : {"origins" : ["http://127.0.0.1:5000", "http://localhost:5000"]}},supports_credentials=True)
+        my_cors = CORS(app,resources={r"*" : {"origins" : ["*"]}})
 
     log_dir = app.config.get("LOGDIR")
     if not os.path.exists(log_dir):
