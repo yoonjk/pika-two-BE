@@ -26,9 +26,4 @@ def get_main_page_jobposts():
         }
         job_posts.append(res)
 
-    print(job_posts)
-
-    return {
-        "job_posts": job_posts,
-    }
-
+    return job_posts
