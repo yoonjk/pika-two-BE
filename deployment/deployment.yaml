@@ -18,9 +18,6 @@ spec:
         - name: pikatwo-be
           image: daisyjeon/pikatwo-be:latest
           imagePullPolicy: Always
-          volumeMounts:
-            - mountPath: /home/pikatwo/logs
-              name: logsdir
           ports:
             - containerPort: 5000
           env:
@@ -46,8 +43,10 @@ spec:
                   key: DB_PORT
             - name: FLASK_ENV
               value: prd
+          volumeMounts:
+            - name: datadir
+              mountPath: /home/pikatwo/
       volumes:
-        - name: logsdir
-          hostPath:
-            path: /home/pikatwo/logs
-            type: DirectoryOrCreate
+        - name: datadir
+          persistentVolumeClaim:
+            claimName: pikatwo-app-pvc
