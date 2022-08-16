@@ -52,6 +52,7 @@ podTemplate(containers: [
 		// Kubernetes
 		def deployment = props["deployment"]
 		def secret = props["secret"]
+		def config = props["config"]
 		def service = props["service"]
 		def ingress = props["ingress"]
 		def selector_key = props["selector_key"]
@@ -122,6 +123,7 @@ podTemplate(containers: [
 			// Deploy App to Cluster in Kubernetes
 			stage( "Deploy to Cluster" ) {
 				container("kubectl") {
+					sh "kubectl apply -n ${namespace} -f ${config}"
 					sh "kubectl apply -n ${namespace} -f ${secret}"
 					sh "kubectl apply -n ${namespace} -f ${deployment}"
 					sh "sleep 5"

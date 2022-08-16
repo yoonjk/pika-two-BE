@@ -22,19 +22,19 @@ class MydataDto:
     })
 
     response_accounts = api.model('response_accounts',{
-        'status' : fields.Integer(description="상태코드"),
+        'code' : fields.Integer(description="상태코드"),
         'data' : fields.List(fields.Nested(account,description="데이터 집합")),
         'message' : fields.String(description="상태 메시지"),
     })
 
     response_deposits = api.model('response_deposits',{
-        'status' : fields.Integer(description="상태코드"),
+        'code' : fields.Integer(description="상태코드"),
         'data' : fields.List(fields.Nested(deposit, description="데이터 집합")),
         'message' : fields.String(description="상태 메시지"),
     })
 
     response_annual_salaries = api.model('response_annual_salaries',{
-        'status' : fields.Integer(description="상태코드"),
+        'code' : fields.Integer(description="상태코드"),
         'data' : fields.List(fields.Nested(annual_salary, description="데이터 집합")),
         'message' : fields.String(description="상태 메시지"),
     })

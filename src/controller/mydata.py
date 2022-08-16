@@ -28,7 +28,7 @@ class Account(Resource):
         """
         accounts = mydata.get_accounts(user_id=user_id)
         return {
-            'status': 200,
+            'code': 200,
             'data': accounts,
             'message': f'input: user_id={user_id}',
         }
@@ -46,14 +46,14 @@ class Account(Resource):
         status_code, msg = mydata.register_account(user_id, account)
         if status_code == 200:
             response = {
-            'status': status_code,
+            'code': status_code,
             'data': msg,
             'message': 'Success to register account'
         }
 
         else:
             response = {
-            'status': status_code,
+            'code': status_code,
             'data': msg,
             'message': 'Fail to register account'
         }
@@ -73,7 +73,7 @@ class Deposit(Resource):
         """
         deposits = mydata.get_deposit(user_id)
         return {
-            'status': 200,
+            'code': 200,
             'data': deposits,
             'message': f'input: user_id={user_id}',
         }
@@ -91,14 +91,14 @@ class Memo(Resource):
         status_code, msg = mydata.add_memos(user_id, memos)
         if status_code == 200:
             response = {
-            'status': status_code,
+            'code': status_code,
             'data': msg,
             'message': 'Success to register memo'
         }
 
         else:
             response = {
-            'status': status_code,
+            'code': status_code,
             'data': msg,
             'message': 'Fail to register memo'
         }
@@ -117,7 +117,7 @@ class AnnualSalary(Resource):
         """
         salary_of_year = mydata.get_annual_salary(user_id, year)
         return {
-            'status': 200,
+            'code': 200,
             'data': salary_of_year,
             'message': f'input: user_id={user_id}, year={year}',
         }
@@ -131,7 +131,7 @@ class AnnualSalary(Resource):
         """
         annual_salary = mydata.update_annual_salary(user_id, year)
         return {
-            'status': 200,
+            'code': 200,
             'data': annual_salary,
             'message': f'input: user_id={user_id}, year={year}',
         }

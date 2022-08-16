@@ -20,7 +20,7 @@ def create_app():
         os.makedirs(log_dir)
 
     logging.basicConfig(filename="logs/pikatwo-be.log", level=logging.DEBUG)
-
+    logging.info(f'DB: {app.config["DB"]}, DB_URI: {app.config["DB_URI"]}, SQLALCHEMY_DATABASE_URI: {app.config["SQLALCHEMY_DATABASE_URI"]}')
     @app.route('/')
     def hello():
         msg = ""

@@ -92,3 +92,15 @@ def get_company_wage(company_id:int, year:int, pro:str):
                            'wage': u_wage} )
     return resultlist
 
+def get_or_create_company(name: str, company_type="", category="", is_certificated=False):
+    company_obj = Company.query.filter(Company.name==name).first()
+    if company_obj is None:
+        company_obj = Company(
+            name = name,
+            type=company_type,
+            category=category,
+            is_certificated=is_certificated
+        )
+        db.session.add(company_obj)
+        db.session.commit()        
+    return company_obj.id
