@@ -32,7 +32,7 @@ def read_mydata(user_id:int) -> object:
     """
     mydata_file = f"{user_id}.xlsx"
     mydata = None
-    data_dir = current_app.config.get("DATADIR") + "/data/"
+    data_dir = current_app.config.get("DATADIR")
     if mydata_file in os.listdir(data_dir):
         try:
             mydata = xlrd.open_workbook(data_dir+mydata_file)
