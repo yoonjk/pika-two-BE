@@ -73,8 +73,8 @@ class AppliedPosts(Resource):
 
     #지원현황 삭제
     def delete(self, user_id):
-        print(user_id)
-        delete_applied_posts(user_id, request.get_json()['apply_id'])
+        logging.info(request.form)
+        delete_applied_posts(user_id, request.form['apply_id'])
         return jsonify({"code": 200})
 
 
