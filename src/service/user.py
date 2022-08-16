@@ -9,19 +9,31 @@ def signup(input):
     logging.info(f"signup - {input}")
     randNickname = nick_gen(1)
     cur_company_id = get_or_create_company(input['company_name'])
+    
     newUser = User(
         nickname=randNickname,
         gender=input['gender'],
-        profession=input['profession'],
+        profession="IT",
         cur_company_id=cur_company_id,
         email=input['email'],
         work_start_dt=input['work_start_dt'],
-        account=input['account'],
+        account="",
         birth_yr=input['birth_yr'],
     )
     db.session.add(newUser)
     db.session.commit()
-    return newUser.id
+    return {
+        "user_id": newUser.id,
+        "nickname": randNickname,
+        "profession": newUser.profession,
+        "gender": newUser.gender,
+        "email": newUser.email,
+        "work_start_dt": newUser.work_start_dt,
+        "applied_list": [],
+        "acccount": newUser.account,
+        "birth_yr": newUser.birth_yr,
+        "cur_company_id": newUser.cur_company_id,
+    }
 
 
 # 마이페이지 정보 조회

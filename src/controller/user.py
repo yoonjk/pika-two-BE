@@ -10,12 +10,10 @@ User = Namespace('User')
 class Signup(Resource):
     # 사용자 기본정보 등록
     def post(self):
-        user_id = signup(dict(request.get_json()))
+        user_data = signup(dict(request.get_json()))
         return jsonify({
             "code": 200,
-            "data": {
-                "user_id": user_id
-            },
+            "data": user_data,
             "message": "사용자가 등록되었습니다"
         })
 
