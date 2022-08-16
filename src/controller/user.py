@@ -1,7 +1,6 @@
 from flask import jsonify, request
 from flask_restx import Resource, Namespace
-from src.service.user import signup, get_my_page, get_fav_list, \
-    delete_fav_list, get_applied_list, post_applied_list, post_fav_list, update_applied_list
+from src.service.user import *
 
 User = Namespace('User')
 
@@ -51,31 +50,31 @@ class FavList(Resource):
 
 
 @User.route('/<int:user_id>/applied-posts')
-class AppliedList(Resource):
+class AppliedPosts(Resource):
 
     # 지원회사 목록
     def get(self, user_id):
         print(user_id)
-        res = get_applied_list(user_id)
+        res = get_applied_posts(user_id)
         return jsonify({"code": 200, "data": res})
 
     #지원하기
     def post(self, user_id):
         print(user_id)
-        post_applied_list(user_id, request.get_json()['post_id'])
+        post_applied_posts(user_id, request.get_json()['post_id'])
         return jsonify({"code": 200})
 
     #상태 변경
     def put(self, user_id):
         print(user_id)
         req = request.get_json()
-        update_applied_list(user_id, req['apply_id'], req['status'])
+        update_applied_posts(user_id, req['apply_id'], req['status'])
         return jsonify({"code": 200})
 
     #지원현황 삭제
     def delete(self, user_id):
         print(user_id)
-        post_applied_list(user_id, request.get_json()['apply_id'])
+        delete_applied_posts(user_id, request.get_json()['apply_id'])
         return jsonify({"code": 200})
 
 
