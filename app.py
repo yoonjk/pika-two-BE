@@ -15,21 +15,13 @@ def create_app():
     else:
         app.config.from_object(DevConfig())
 
-    log_dir = app.config.get("BASEDIR") + "/logs"
+    log_dir = app.config.get("LOGDIR")
     if not os.path.exists(log_dir):
         os.makedirs(log_dir)
 
-    logging.basicConfig(filename="logs/pikatwo-be.log", level=logging.DEBUG)
+    logging.basicConfig(filename="{log_dir}pikatwo-be.log", level=logging.DEBUG)
     logging.info(f'DB: {app.config["DB"]}, DB_URI: {app.config["DB_URI"]}, SQLALCHEMY_DATABASE_URI: {app.config["SQLALCHEMY_DATABASE_URI"]}')
-    @app.route('/')
-    def hello():
-        msg = ""
-        for key, val in app.config["DB"].items():
-            msg += f"{key}={val}<br>"
-        msg += f"{app.config['DB_URI']}<br>"
-        msg += f"{app.config['SQLALCHEMY_DATABASE_URI']}<br>"
-        return msg
-
+    
     api.init_app(app)
     db.init_app(app)
     migrate.init_app(app, db)
