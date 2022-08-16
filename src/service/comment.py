@@ -19,7 +19,7 @@ def get_comment(company_id):
 
 def post_comment(company_id, input):
     '''리뷰 올리기'''
-    u_id = User.query.filter(User.nickname == input['nickname']).first()
+    u_id = User.query.filter(User.id == input['id']).first()
 
     add_review = Comment(
         commenter_id = u_id.id,
