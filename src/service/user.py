@@ -95,7 +95,7 @@ def delete_fav_list(fav_company_id):
 
 
 # 지원회사 목록
-def get_applied_list(user_id):
+def get_applied_posts(user_id):
     print(user_id)
     app_list = Apply.query.filter_by(user_id=user_id).all()
     response = []
@@ -117,7 +117,7 @@ def get_applied_list(user_id):
 
 
 # 지원하기
-def post_applied_list(user_id, post_id):
+def post_applied_posts(user_id, post_id):
     print(user_id)
     app_company = Apply(user_id=user_id, job_post_id=post_id, status='진행중')
     db.session.add(app_company)
@@ -125,13 +125,13 @@ def post_applied_list(user_id, post_id):
 
 
 # 지원상태 수정
-def update_applied_list(user_id, apply_id, status):
+def update_applied_posts(user_id, apply_id, status):
     print(user_id)
     Apply.query.filter_by(id=apply_id).update({'status': status})
     db.session.commit()
 
 
 # 지원공고 삭제
-def delete_applied_list(apply_id):
+def delete_applied_posts(apply_id):
     Apply.query.get(apply_id).delete()
     db.session.commit()
