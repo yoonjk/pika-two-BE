@@ -243,7 +243,7 @@ def add_annual_salary(user_id:int) -> tuple:
     """
     user = User.query.filter(User.id==user_id).first()
     company_id = user.cur_company_id
-    annual_salaries = db.session.query(func.sum(Deposit.deposit_amount).label("annual_salary"), func.year(Deposit.deposit_dt).label("year")).filter(Deposit.user_id==1).group_by(func.year(Deposit.deposit_dt)).all()
+    annual_salaries = db.session.query(func.sum(Deposit.deposit_amount).label("annual_salary"), func.year(Deposit.deposit_dt).label("year")).filter(Deposit.user_id==user_id).group_by(func.year(Deposit.deposit_dt)).all()
     status_code = 200
 
     try:
