@@ -149,5 +149,6 @@ def update_applied_posts(user_id, apply_id, status):
 
 # 지원공고 삭제
 def delete_applied_posts(apply_id):
-    Apply.query.get(apply_id).delete()
+    del_apply = Apply.query.get(apply_id)
+    db.session.delete(del_apply)
     db.session.commit()
