@@ -106,7 +106,8 @@ def post_fav_list(user_id, company_id):
 
 # 찜삭제
 def delete_fav_list(fav_company_id):
-    FavoriteCompanies.query.get(fav_company_id).delete()
+    del_favor = FavoriteCompanies.query.get(fav_company_id)
+    db.session.delete(del_favor)
     db.session.commit()
 
 
