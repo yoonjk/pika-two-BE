@@ -3,39 +3,52 @@ from src.model.models import User, FavoriteCompanies, Wage, Apply, JobPost, Comp
 from src.service.nickname_gen import nick_gen
 from src.service.company import get_or_create_company
 import logging
-from datetime import date
 
 
 def signup(input):
     logging.info(f"signup - {input}")
     randNickname = nick_gen(1)
     cur_company_id = get_or_create_company(input['company_name'])
-    
-    newUser = User(
-        nickname=randNickname,
-        gender=input['gender'],
-        profession="IT",
-        cur_company_id=cur_company_id,
-        email=input['email'],
-        work_start_dt= f'{input["work_start_dt"]}-01-01',
-        account="",
-        # work_start_dt = int(input['work_start_dt']),
-        birth_yr= int(input['birth_yr'])
-        # birth_yr = int(input['birth_yr'])
-    )
-    db.session.add(newUser)
-    db.session.commit()
+    if User.query.filter(User.email==input["email"]).count() == 0:
+        newUser = User(
+            nickname=randNickname,
+            gender=input['gender'],
+            profession="IT",
+            cur_company_id=cur_company_id,
+            email=input['email'],
+            work_start_dt= f'{input["work_start_dt"]}-01-01',
+            account="",
+            # work_start_dt = int(input['work_start_dt']),
+            birth_yr= int(input['birth_yr'])
+            # birth_yr = int(input['birth_yr'])
+        )
+        db.session.add(newUser)
+        db.session.commit()
+        return {
+            "user_id": newUser.id,
+            "nickname": randNickname,
+            "profession": newUser.profession,
+            "gender": newUser.gender,
+            "email": newUser.email,
+            "work_start_dt": newUser.work_start_dt,
+            "applied_list": [],
+            "acccount": newUser.account,
+            "birth_yr": newUser.birth_yr,
+            "cur_company_id": newUser.cur_company_id,
+        }
+    user = User.query.filter(User.email==input["email"]).first()
+    applied_list = [post.job_post_id for post in Apply.query.filter(Apply.user_id==user.id).all()]
     return {
-        "user_id": newUser.id,
-        "nickname": randNickname,
-        "profession": newUser.profession,
-        "gender": newUser.gender,
-        "email": newUser.email,
-        "work_start_dt": newUser.work_start_dt,
-        "applied_list": [],
-        "acccount": newUser.account,
-        "birth_yr": newUser.birth_yr,
-        "cur_company_id": newUser.cur_company_id,
+        "user_id": user.id,
+        "nickname": user.nickname,
+        "profession": user.profession,
+        "gender": user.gender,
+        "email": user.email,
+        "work_start_dt": user.work_start_dt,
+        "applied_list": applied_list,
+        "acccount": user.account,
+        "birth_yr": user.birth_yr,
+        "cur_company_id": user.cur_company_id,
     }
 
 
