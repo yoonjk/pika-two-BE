@@ -19,13 +19,13 @@ def get_comment(company_id):
     return resultlist
 
 
-def post_comment(company_id, input):
+def post_comment(company_id,_input):
     '''리뷰 올리기'''
-    u_id = User.query.filter(User.id == input['id']).first()
+    u_id = User.query.filter(User.id == _input['user_id']).first()
 
     add_review = Comment(
         commenter_id = u_id.id,
-        content = input['content'],
+        content = _input['content'],
         company_id = company_id
     )
     db.session.add(add_review)
