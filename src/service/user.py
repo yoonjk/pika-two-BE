@@ -31,7 +31,7 @@ def signup(input):
             "gender": newUser.gender,
             "email": newUser.email,
             "work_start_dt": newUser.work_start_dt,
-            "favor_list": [],
+            "favor_company_list": [],
             "applied_list": [],
             "acccount": newUser.account,
             "birth_yr": newUser.birth_yr,
@@ -47,7 +47,7 @@ def signup(input):
         "gender": user.gender,
         "email": user.email,
         "work_start_dt": user.work_start_dt,
-        "favor_list": favor_list,
+        "favor_company_list": favor_list,
         "applied_list": applied_list,
         "acccount": user.account,
         "birth_yr": user.birth_yr,
@@ -149,5 +149,6 @@ def update_applied_posts(user_id, apply_id, status):
 
 # 지원공고 삭제
 def delete_applied_posts(apply_id):
-    Apply.query.get(apply_id).delete()
+    del_apply = Apply.query.get(apply_id)
+    db.session.delete(del_apply)
     db.session.commit()
