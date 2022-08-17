@@ -31,6 +31,7 @@ def signup(input):
             "gender": newUser.gender,
             "email": newUser.email,
             "work_start_dt": newUser.work_start_dt,
+            "favor_list": [],
             "applied_list": [],
             "acccount": newUser.account,
             "birth_yr": newUser.birth_yr,
@@ -38,6 +39,7 @@ def signup(input):
         }
     user = User.query.filter(User.email==input["email"]).first()
     applied_list = [post.job_post_id for post in Apply.query.filter(Apply.user_id==user.id).all()]
+    favor_list = [company.company_id for company in FavoriteCompanies.query.filter(FavoriteCompanies.user_id==user.id).all()]
     return {
         "user_id": user.id,
         "nickname": user.nickname,
@@ -45,6 +47,7 @@ def signup(input):
         "gender": user.gender,
         "email": user.email,
         "work_start_dt": user.work_start_dt,
+        "favor_list": favor_list,
         "applied_list": applied_list,
         "acccount": user.account,
         "birth_yr": user.birth_yr,
