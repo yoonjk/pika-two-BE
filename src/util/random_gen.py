@@ -5,7 +5,7 @@ from datetime import date
 import pandas as pd
 from flask import current_app
 import os
-
+from dateutil.relativedelta import relativedelta
 
 
 BANK_ACCOUNTS = {
@@ -31,7 +31,8 @@ SALARY_MEMOS = ["월정급여", "급여", "정기급여"]
 def nick_gen(p):
     params = {
         'format':'json',
-        'count': p
+        'count': p,
+        'seed': random.randint(1, 999),
     }
     url = 'https://nickname.hwanmoo.kr/'
     response = requests.get(url, params=params)
@@ -58,22 +59,26 @@ def account_list_gen():
                 })
     return account_list
 
-def deposit_list_gen(user_id, period=12, salary_day=21):
+def deposit_list_gen(user_id, salary_day=21):
     csv_path = f'{current_app.config.get("DATADIR")}{user_id}_deposit.csv'
     if os.path.exists(csv_path):
         return pd.read_csv(csv_path).to_dict(orient="record")
     user = User.query.filter(User.id==user_id).first()
+    work_start_year = user.work_start_dt.year
     company_name = Company.query.get(user.cur_company_id).name
     salary_memos = SALARY_MEMOS + [company_name]
     salary_memo = random.choice(salary_memos)
-    today = date.today()
-    year = today.year
-    m = today.month
+    new_date = date.today()
+    year = new_date.year
+    month = new_date.month - 1
     standard_salary = int(abs(random.gauss(3000, 200)))
     deposit_list = []
-    for month in range(m, m-period,-1):
-        yr, month = (year, month) if month > 0 else (year-1, month+12)
-        salary_dt = "{}-{:02d}-{:02d}".format(yr, month, salary_day)
+    while new_date.year >= work_start_year:
+        if year != new_date.year:
+            standard_salary = standard_salary*0.95
+        year = new_date.year
+        month = new_date.month
+        salary_dt = "{}-{:02d}-{:02d}".format(year, month, salary_day)
         salary_amount = int(abs(random.gauss(standard_salary, 5)))*1000
         deposit_list.append({
             "date": salary_dt,
@@ -86,10 +91,11 @@ def deposit_list_gen(user_id, period=12, salary_day=21):
             start, end = DEPOSIT_MEMOS[deposit_memo]
             rand_amount = max(int(random.expovariate(start)*1000) if deposit_memo == "로또 당첨금" else random.randrange(start, end), 500)*1000
             deposit_list.append({
-                "date": "{}-{:02d}-{:02d}".format(yr, month, day),
+                "date": "{}-{:02d}-{:02d}".format(year, month, day),
                 "amount": rand_amount,
                 "memo": deposit_memo,
             })
+        new_date -= relativedelta(months=1)
     pd.DataFrame(deposit_list).to_csv(csv_path, index=False)
     return deposit_list
 
