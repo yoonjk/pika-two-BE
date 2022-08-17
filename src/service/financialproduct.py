@@ -1,4 +1,4 @@
-from src.model.models import User, FinancialProduct, Wage
+from src.model.models import User, Wage
 from datetime import datetime
 from flask import current_app
 import requests
