@@ -71,10 +71,12 @@ class AppliedPosts(Resource):
         update_applied_posts(user_id, req['apply_id'], req['status'])
         return jsonify({"code": 200})
 
+@User.route('/<int:user_id>/applied-posts/<int:apply-id>')
+class AppliedPostsDetail(Resource):
     #지원현황 삭제
-    def delete(self, user_id):
+    def delete(self, user_id, apply_id):
         logging.info(f"{request.form}")
-        delete_applied_posts(user_id, request.form['apply_id'])
+        delete_applied_posts(apply_id)
         return jsonify({"code": 200})
 
 
