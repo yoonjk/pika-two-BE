@@ -11,7 +11,7 @@ def get_search_company(com_keyword:str, com_category:str, com_type:str, com_is_c
     p_size = 20
     
     # 회사 이름으로 검색 & 기업 규모로 검색, & 산업별로 검색 & 인증된 기업 여부 검색
-    query_filter = [Company.name.like(f'%{com_keyword}%'), Company.category.like(f'%{com_category}%'), Company.type.like(f'%{com_type}%'), Company.is_certificated==com_is_certified]
+    query_filter = [Company.name.like(f'%{com_keyword}%'), Company.category.like(f'%{com_category}%'), Company.type.like(f'%{com_type}%'), Company.is_certificated>=com_is_certified]
     result = Company.query.filter(and_(*query_filter))
 
     resultlist = []
