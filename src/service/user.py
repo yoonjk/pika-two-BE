@@ -98,15 +98,30 @@ def get_fav_list(user_id):
 
 # 찜등록
 def post_fav_list(user_id, company_id):
-    print(user_id)
-    fav_company = FavoriteCompanies(user_id=user_id, company_id=company_id)
-    db.session.add(fav_company)
+    fav_company = FavoriteCompanies.query.filter(
+        (FavoriteCompanies.user_id==user_id) &
+        (FavoriteCompanies.company_id==company_id)
+    ).first()
+    msg = ""
+    result = True
+    if fav_company is None:
+        fav_company = FavoriteCompanies(user_id=user_id, company_id=company_id)
+        db.session.add(fav_company)
+        msg = f"post_fav_list - {user_id}가 {company_id}를 찜하였습니다"
+        result = True
+    else:
+        db.session.delete(fav_company)
+        msg = f"post_fav_list - {user_id}가 {company_id}를 찜해제하였습니다"
+        result = False
     db.session.commit()
+    logging.info(msg)
+    return result
 
 
 # 찜삭제
 def delete_fav_list(fav_company_id):
-    FavoriteCompanies.query.get(fav_company_id).delete()
+    del_favor = FavoriteCompanies.query.get(fav_company_id)
+    db.session.delete(del_favor)
     db.session.commit()
 
 
