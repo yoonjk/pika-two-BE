@@ -36,11 +36,10 @@ class FavList(Resource):
         response = get_fav_list(user_id)
         return jsonify({"code": 200, "data": response})
 
-    # 찜등록
+    # 찜등록/해제
     def post(self, user_id):
-        print(user_id)
-        post_fav_list(user_id, request.get_json()['company_id'])
-        return jsonify({"code": 200})
+        result = post_fav_list(user_id, request.get_json()['company_id'])
+        return jsonify({"code": 200, "data": result})
 
     # 찜삭제
     def delete(self, user_id):
