@@ -30,7 +30,7 @@ class MyPage(Resource):
 @User.route('/<int:user_id>/favor')
 class FavList(Resource):
 
-    # 찜목록
+    # 찜목록    
     def get(self, user_id):
         print(user_id)
         response = get_fav_list(user_id)
@@ -41,10 +41,14 @@ class FavList(Resource):
         result = post_fav_list(user_id, request.get_json()['company_id'])
         return jsonify({"code": 200, "data": result})
 
+
+@User.route('/<int:user_id>/favor/<int:fav_company_id>')
+class FavDetail(Resource):
+
     # 찜삭제
-    def delete(self, user_id):
+    def delete(self, user_id, fav_company_id):
         print(user_id)
-        delete_fav_list(request.get_json()['fav_company_id'])
+        delete_fav_list(fav_company_id)
         return jsonify({"code": 200})
 
 
