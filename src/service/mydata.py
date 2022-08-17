@@ -9,6 +9,7 @@ import logging
 from src.database import db
 from src.model.models import User, Memo, Company, Deposit, Wage
 from sqlalchemy import func
+from src.util.random_gen import account_list_gen, deposit_list_gen, salary_history_gen
 
 ACCOUNT_BANK_MAP = {
     "KB나라사랑우대통장": "국민은행",
@@ -68,8 +69,7 @@ def get_accounts(user_id:int) -> list:
     """
     mydata = read_mydata(user_id=user_id)
     if mydata is None:
-        # TODO: 계좌 랜덤 생성
-        return []
+        return account_list_gen()
 
     account_row_start = 0
     account_row_end = 0
@@ -129,8 +129,7 @@ def get_deposit(user_id:int)->list:
     account = User.query.filter(User.id==user_id).first().account
     salary_criteria = 500000
     if statement is None:
-        # TODO: 급여 및 입금 내역 랜덤 생성 필요
-        return []
+        return deposit_list_gen(user_id, period=12)
     deposit_df = statement.loc[
         (statement["결제수단"]==account) \
         & (statement["금액"] > salary_criteria) \
@@ -159,7 +158,6 @@ def add_memos(user_id:int, memos:list) -> tuple:
     msg = memos
     registered_memos = [m.memo for m in Memo.query.filter(Memo.user_id==user_id).all()]
     try:
-        # TODO: memo 테이블에서 없는 memo만 등록
         for memo in memos:
             if memo not in registered_memos:
                 new_memo = Memo(
@@ -193,8 +191,8 @@ def get_salary_history_from_mydata(user_id:int) -> list:
     account = user.account
     memos = [memo.memo for memo in Memo.query.filter(Memo.user_id==user_id).all()]
     if statement is None:
-        # TODO: 급여 및 입금 내역 랜덤 생성 필요
-        return []
+        salary_history = salary_history_gen(user_id, memos)
+        return salary_history
 
     salary_df = statement.loc[
         (statement["결제수단"]==account) \

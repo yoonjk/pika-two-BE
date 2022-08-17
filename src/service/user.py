@@ -1,9 +1,8 @@
 from src.database import db
 from src.model.models import User, FavoriteCompanies, Wage, Apply, JobPost, Company
-from src.service.nickname_gen import nick_gen
+from src.util.random_gen import nick_gen
 from src.service.company import get_or_create_company
 import logging
-from datetime import date
 
 
 def signup(input):
