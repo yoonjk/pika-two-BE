@@ -129,7 +129,7 @@ def get_deposit(user_id:int)->list:
     account = User.query.filter(User.id==user_id).first().account
     salary_criteria = 500000
     if statement is None:
-        return deposit_list_gen(user_id, period=12)
+        return deposit_list_gen(user_id)
     deposit_df = statement.loc[
         (statement["결제수단"]==account) \
         & (statement["금액"] > salary_criteria) \
