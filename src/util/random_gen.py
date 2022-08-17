@@ -1,12 +1,12 @@
 import json, requests
 import random
 from src.model.models import User, Company, Memo
-from datetime import date
+from datetime import date, datetime
 import pandas as pd
 from flask import current_app
 import os
 from dateutil.relativedelta import relativedelta
-
+import logging
 
 BANK_ACCOUNTS = {
     "국민은행": ["KB나라사랑우대통장", "KB Star*t통장"],
@@ -61,43 +61,49 @@ def account_list_gen():
 
 def deposit_list_gen(user_id, salary_day=21):
     csv_path = f'{current_app.config.get("DATADIR")}{user_id}_deposit.csv'
+    deposit_df = None
     if os.path.exists(csv_path):
-        return pd.read_csv(csv_path).to_dict(orient="record")
-    user = User.query.filter(User.id==user_id).first()
-    work_start_year = user.work_start_dt.year
-    company_name = Company.query.get(user.cur_company_id).name
-    salary_memos = SALARY_MEMOS + [company_name]
-    salary_memo = random.choice(salary_memos)
-    new_date = date.today()
-    year = new_date.year
-    month = new_date.month - 1
-    standard_salary = int(abs(random.gauss(3000, 200)))
-    deposit_list = []
-    while new_date.year >= work_start_year:
-        if year != new_date.year:
-            standard_salary = standard_salary*0.95
+        deposit_df = pd.read_csv(csv_path)
+        # return deposit_df.loc[(deposit_df["date"] > date.today() - relativedelta(months=6))].to_dict(orient="record")
+
+    else:
+        user = User.query.filter(User.id==user_id).first()
+        work_start_year = user.work_start_dt.year
+        company_name = Company.query.get(user.cur_company_id).name
+        salary_memos = SALARY_MEMOS + [company_name]
+        salary_memo = random.choice(salary_memos)
+        new_date = date.today()
         year = new_date.year
-        month = new_date.month
-        salary_dt = "{}-{:02d}-{:02d}".format(year, month, salary_day)
-        salary_amount = int(abs(random.gauss(standard_salary, 5)))*1000
-        deposit_list.append({
-            "date": salary_dt,
-            "amount": salary_amount,
-            "memo": salary_memo,
-        })
-        if random.random() < 0.2:
-            day = random.randrange(1, salary_day-1)
-            deposit_memo = random.choice(list(DEPOSIT_MEMOS.keys()))
-            start, end = DEPOSIT_MEMOS[deposit_memo]
-            rand_amount = max(int(random.expovariate(start)*1000) if deposit_memo == "로또 당첨금" else random.randrange(start, end), 500)*1000
+        month = new_date.month - 1
+        standard_salary = int(abs(random.gauss(3000, 200)))
+        deposit_list = []
+        while new_date.year >= work_start_year:
+            if year != new_date.year:
+                standard_salary = standard_salary*0.95
+            year = new_date.year
+            month = new_date.month
+            salary_dt = "{}-{:02d}-{:02d}".format(year, month, salary_day)
+            salary_amount = int(abs(random.gauss(standard_salary, 5)))*1000
             deposit_list.append({
-                "date": "{}-{:02d}-{:02d}".format(year, month, day),
-                "amount": rand_amount,
-                "memo": deposit_memo,
+                "date": salary_dt,
+                "amount": salary_amount,
+                "memo": salary_memo,
             })
-        new_date -= relativedelta(months=1)
-    pd.DataFrame(deposit_list).to_csv(csv_path, index=False)
-    return deposit_list
+            if random.random() < 0.2:
+                day = random.randrange(1, salary_day-1)
+                deposit_memo = random.choice(list(DEPOSIT_MEMOS.keys()))
+                start, end = DEPOSIT_MEMOS[deposit_memo]
+                rand_amount = max(int(random.expovariate(start)*1000) if deposit_memo == "로또 당첨금" else random.randrange(start, end), 500)*1000
+                deposit_list.append({
+                    "date": "{}-{:02d}-{:02d}".format(year, month, day),
+                    "amount": rand_amount,
+                    "memo": deposit_memo,
+                })
+            new_date -= relativedelta(months=1)
+        deposit_df = pd.DataFrame(deposit_list)
+        deposit_df.to_csv(csv_path, index=False)
+    deposit_df["date"] = pd.to_datetime(deposit_df["date"])
+    return deposit_df.loc[(deposit_df["date"] > datetime.now() - relativedelta(months=6))].to_dict(orient="record")
 
 def salary_history_gen(user_id, memos):
     deposit_df = pd.read_csv(f'{current_app.config.get("DATADIR")}{user_id}_deposit.csv')
