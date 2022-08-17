@@ -52,26 +52,26 @@ def get_company_info(company_id:int):
         job_posts.append(res)
 
     ur = User.query.filter(User.cur_company_id == company_id).first()
-
     wage_list = []
-    for i in range(1, 6):
-        # 연차별로 평균, 최소, 최대 연봉
-        avg_wage = Wage.query.with_entities(func.avg(Wage.amount).label("avg")).group_by(Wage.yr).having(Wage.yr == i).first()
-        min_wage = Wage.query.with_entities(func.min(Wage.amount).label("avg")).group_by(Wage.yr).having(Wage.yr == i).first()
-        max_wage = Wage.query.with_entities(func.max(Wage.amount).label("avg")).group_by(Wage.yr).having(Wage.yr == i).first()
+    if ur is not None:
+        for i in range(1, 6):
+            # 연차별로 평균, 최소, 최대 연봉
+            avg_wage = Wage.query.with_entities(func.avg(Wage.amount).label("avg")).group_by(Wage.yr).having(Wage.yr == i).first()
+            min_wage = Wage.query.with_entities(func.min(Wage.amount).label("avg")).group_by(Wage.yr).having(Wage.yr == i).first()
+            max_wage = Wage.query.with_entities(func.max(Wage.amount).label("avg")).group_by(Wage.yr).having(Wage.yr == i).first()
 
-        avg_wage = 0 if avg_wage == None else int(avg_wage[0])
-        min_wage = 0 if min_wage == None else int(min_wage[0])
-        max_wage = 0 if max_wage == None else int(max_wage[0])
+            avg_wage = 0 if avg_wage == None else int(avg_wage[0])
+            min_wage = 0 if min_wage == None else int(min_wage[0])
+            max_wage = 0 if max_wage == None else int(max_wage[0])
 
-        res = {
-            "profession" : ur.profession,
-            "avg": avg_wage,
-            "min": min_wage,
-            "max": max_wage,
-            "year" : i
-        }
-        wage_list.append(res)
+            res = {
+                "profession" : ur.profession,
+                "avg": avg_wage,
+                "min": min_wage,
+                "max": max_wage,
+                "year" : i
+            }
+            wage_list.append(res)
 
     return {
         "company_name" : com.name,
@@ -79,6 +79,7 @@ def get_company_info(company_id:int):
         "wages" : wage_list
     }
 def get_company_wage(company_id:int, year:int, pro:str):
+    com = Company.query.get(company_id)
 
     results = (db.session.query(Wage)
                .join(User, Wage.user_id == User.id)
@@ -90,7 +91,10 @@ def get_company_wage(company_id:int, year:int, pro:str):
     for u_nick, u_wage  in results:
         resultlist.append({'nickname': u_nick,
                            'wage': u_wage} )
-    return resultlist
+    return {
+        "company_name": com.name,
+        "wages": resultlist
+    }
 
 def get_or_create_company(name: str, company_type="", category="", is_certificated=False):
     company_obj = Company.query.filter(Company.name==name).first()
