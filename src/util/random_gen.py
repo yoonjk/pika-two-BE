@@ -31,7 +31,8 @@ SALARY_MEMOS = ["월정급여", "급여", "정기급여"]
 def nick_gen(p):
     params = {
         'format':'json',
-        'count': p
+        'count': p,
+        'seed': random.randint(1, 999),
     }
     url = 'https://nickname.hwanmoo.kr/'
     response = requests.get(url, params=params)

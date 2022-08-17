@@ -8,6 +8,8 @@ import logging
 def signup(input):
     logging.info(f"signup - {input}")
     randNickname = nick_gen(1)
+    while User.query.filter(User.nickname==randNickname).count() > 0:
+        randNickname = nick_gen(1)
     cur_company_id = get_or_create_company(input['company_name'])
     if User.query.filter(User.email==input["email"]).count() == 0:
         newUser = User(
