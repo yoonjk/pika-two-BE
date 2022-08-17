@@ -3,9 +3,6 @@ from src.database import db
 from src.model.models import Company, JobPost
 from datetime import datetime
 
-now = datetime.now()
-
-
 def get_main_page_jobposts():
 
     now_dt = datetime.now().date()
