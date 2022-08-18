@@ -1,19 +1,22 @@
 from src.model.models import User, Wage
+from src.service import mydata
 from datetime import datetime
 from flask import current_app
 import requests
 # from src.util.ml import *
+import logging
 
 def get_user_info(user_id):
     '''추천시스템으로 넘길 유저 사용자 정보 불러오기'''
     user = User.query.filter(User.id == user_id).first()
     wage = Wage.query.filter(Wage.user_id == user_id).first()
+    wage_amount = mydata.get_annual_salary(user_id, year=datetime.today().year)["annual_salary"] if wage is None else wage.amount
 
     result = {
         "user_id" : user.id,
         "sexo": 'V' if user.gender == 'F' else 'H',
         "age" :  datetime.now().year - user.birth_yr,
-        "wage" : wage.amount,
+        "wage" : wage_amount,
         "enter_dt" : user.work_start_dt.strftime('%Y-%m-%d')
     }
 
