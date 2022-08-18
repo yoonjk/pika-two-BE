@@ -4,7 +4,6 @@ from datetime import datetime
 from flask import current_app
 import requests
 # from src.util.ml import *
-import logging
 
 def get_user_info(user_id):
     '''추천시스템으로 넘길 유저 사용자 정보 불러오기'''
