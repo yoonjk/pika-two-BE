@@ -248,19 +248,20 @@ def add_annual_salary(user_id:int) -> tuple:
 
     try:
         for salary in annual_salaries:
-            career_yr = salary.year - user.work_start_dt.year + 1 # 입사연도=1년차
-            registered_wage = Wage.query.filter((Wage.user_id==user_id) & (Wage.yr==career_yr) & (Wage.company_id==company_id)).first()
-            if registered_wage is None:
-                new_wage = Wage(
-                    amount=salary.annual_salary,
-                    user_id=user_id,
-                    company_id=company_id,
-                    yr=career_yr,
-                )
-                db.session.add(new_wage)
-            else:
-                if registered_wage.amount != salary.annual_salary:
-                    registered_wage.amount = salary.annual_salary
+            if salary.year != datetime.date.today().year:
+                career_yr = salary.year - user.work_start_dt.year + 1 # 입사연도=1년차
+                registered_wage = Wage.query.filter((Wage.user_id==user_id) & (Wage.yr==career_yr) & (Wage.company_id==company_id)).first()
+                if registered_wage is None:
+                    new_wage = Wage(
+                        amount=salary.annual_salary,
+                        user_id=user_id,
+                        company_id=company_id,
+                        yr=career_yr,
+                    )
+                    db.session.add(new_wage)
+                else:
+                    if registered_wage.amount != salary.annual_salary:
+                        registered_wage.amount = salary.annual_salary
         db.session.commit()
         logging.info(f"{user_id}의 연봉정보가 등록되었습니다.")
         return status_code
