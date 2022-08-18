@@ -3,6 +3,8 @@ from src.model.models import User, FavoriteCompanies, Wage, Apply, JobPost, Comp
 from src.util.random_gen import nick_gen
 from src.service.company import get_or_create_company
 import logging
+from src.service import mydata
+from datetime import datetime
 
 
 def signup(input):
@@ -66,13 +68,9 @@ def get_my_page(user_id):
     wage = sorted(Wage.query.filter(Wage.user_id == user_id).all(), key=lambda x: x.yr)
 
     prev_wage = 0
-    cur_wage = 0
+    cur_wage = mydata.get_annual_salary(user_id, year=datetime.today().year)["annual_salary"]
     if len(wage) > 0:
-        if len(wage) < 2:
-            cur_wage = wage[0].amount
-        else:
-            prev_wage = wage[0].amount
-            cur_wage = wage[1].amount
+        prev_wage = wage[0].amount
 
     response = {
         "id": user_id,
@@ -80,7 +78,7 @@ def get_my_page(user_id):
         "cur_company_id": user.cur_company_id,
         "work_start_dt": user.cur_company_id,
         "prev_wage": prev_wage,
-        "cur_wage": cur_wage,
+        "cur_wage": int(cur_wage),
     }
 
     return response
