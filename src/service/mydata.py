@@ -305,13 +305,21 @@ def get_annual_salary(user_id:int, year:int) -> list:
     user = User.query.filter(User.id==user_id).first()
     career_yr = year-user.work_start_dt.year + 1
     company_name = Company.query.filter(Company.id==user.cur_company_id).first().name
-    annual_salary = {
-        "year": career_yr,
-        "annual_salary": Wage.query.filter(
-            (Wage.user_id==user_id) &
-            (Wage.yr==career_yr)
-        ).first().amount,
-        "company": company_name,
-    }
+    if year == datetime.date.today().year:
+        this_year_salary = db.session.query(func.sum(Deposit.deposit_amount).label("annual_salary"), func.year(Deposit.deposit_dt).label("year")).filter((Deposit.user_id==user_id)&(func.year(Deposit.deposit_dt)==year)).group_by(func.year(Deposit.deposit_dt)).first().annual_salary
+        annual_salary = {
+            "year": career_yr,
+            "annual_salary": str(this_year_salary),
+            "company": company_name,
+        }
+    else:
+        annual_salary = {
+            "year": career_yr,
+            "annual_salary": Wage.query.filter(
+                (Wage.user_id==user_id) &
+                (Wage.yr==career_yr)
+            ).first().amount,
+            "company": company_name,
+        }
         
     return annual_salary
