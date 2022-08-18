@@ -56,9 +56,10 @@ def get_company_info(company_id:int):
     if ur is not None:
         for i in range(1, 6):
             # 연차별로 평균, 최소, 최대 연봉
-            avg_wage = Wage.query.with_entities(func.avg(Wage.amount).label("avg")).group_by(Wage.yr).having(Wage.yr == i).first()
-            min_wage = Wage.query.with_entities(func.min(Wage.amount).label("avg")).group_by(Wage.yr).having(Wage.yr == i).first()
-            max_wage = Wage.query.with_entities(func.max(Wage.amount).label("avg")).group_by(Wage.yr).having(Wage.yr == i).first()
+            q = db.session.query(Wage).filter(Wage.company_id==company_id)
+            avg_wage = q.with_entities(func.avg(Wage.amount).label("avg")).group_by(Wage.yr).having(Wage.yr == i).first()
+            min_wage = q.with_entities(func.min(Wage.amount).label("avg")).group_by(Wage.yr).having(Wage.yr == i).first()
+            max_wage = q.with_entities(func.max(Wage.amount).label("avg")).group_by(Wage.yr).having(Wage.yr == i).first()
 
             avg_wage = 0 if avg_wage == None else int(avg_wage[0])
             min_wage = 0 if min_wage == None else int(min_wage[0])
